@@ -38,7 +38,7 @@
                         </mat-option>
                       </mat-select>
                     </mat-form-field>
-                    <mat-form-field class="ml-3 formField">
+                    <mat-form-field *ngIf="selectedMethod !== 'DeepLearningHybrid'" class="ml-3 formField">
                       <mat-label>Canal</mat-label>
                       <mat-select placeholder="Sin selección" multiple formControlName="channels">
                         <mat-option class="mat-option" value="allChannels" (click)="selectAllChannels()">Seleccionar todos</mat-option>
@@ -207,6 +207,12 @@
         </div>
     </div>
     <div class="has-text-centered buttonPosition">
-      <button [disabled]="form.invalid" (click)="applyMethodBtn()" class="button is-link is-rounded">Aplicar método</button>
+      <div *ngIf="isProcessing" class="mb-3">
+        <progress class="progress is-link is-small" max="100"></progress>
+        <p class="has-text-weight-semibold">{{processingStatusMessage}}</p>
+      </div>
+      <button [disabled]="form.invalid || isProcessing" [class.is-loading]="isProcessing" (click)="applyMethodBtn()" class="button is-link is-rounded">
+        {{isProcessing ? 'Procesando...' : 'Aplicar método'}}
+      </button>
     </div>
 </div>

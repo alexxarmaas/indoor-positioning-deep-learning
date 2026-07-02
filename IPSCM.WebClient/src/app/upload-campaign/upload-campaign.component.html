@@ -36,34 +36,51 @@
   <div class="columns is-centered">
     
     <div class="file has-name is-boxed is-centered mt-2 p-1">
-      <label class="file-label" (dragover)="onDragOver($event, 'file')" (dragleave)="onDragLeave($event, 'file') "(drop)="onDrop($event, 'file')"
-      [ngClass]="{'dragging': isDraggingFile}">
-        <input  class="file-input" type="file" name="resume" accept=".sqlite3" multiple (change)="onSelected($event, 'file')" >
+      <label class="file-label" (dragover)="onDragOver($event, 'aleatoryFile')" (dragleave)="onDragLeave($event, 'aleatoryFile')" (drop)="onDrop($event, 'aleatoryFile')"
+        [ngClass]="{'dragging': isDraggingAleatoryFile}">
+        <input class="file-input" type="file" name="aleatoryFile" accept=".sqlite3" [disabled]="isUploading" (change)="onSelected($event, 'aleatoryFile')">
         <span class="file-cta">
-          <span class="file-icon is-centered ">
-              <i class="fa-solid fa-upload fa-2xl fa-fade mt-5"></i>
+          <span class="file-icon is-centered">
+            <i class="fa-solid fa-upload fa-2xl fa-fade mt-5"></i>
           </span>
-          <span class="file-label mt-5">
-            Arrastra o selecciona una pareja de campañas de datos
-          </span>
-          <span class="file-label">
-            (1º P. Aleatorios.  2º P. Referencia.)
-          </span>
+          <span class="file-label mt-5">Base de puntos aleatorios</span>
+          <span class="file-label">(Un único archivo SQLITE3)</span>
         </span>
-        <span class="file-name" [ngClass]="{'has-background-warning has-text-dark': !secondFileUploaded, 'has-background-primary-dark has-text-white': secondFileUploaded, 'vertical-center': !firstFileUploaded}">{{fileNames.length ? fileNames.join('\n') : "No hay ningún archivo cargado"}}</span>
+        <span class="file-name" [ngClass]="{'has-background-warning has-text-dark': !aleatoryFileUploaded, 'has-background-primary-dark has-text-white': aleatoryFileUploaded}">
+          {{aleatoryFileName || "No hay ningún archivo cargado"}}
+        </span>
       </label>
+      <button *ngIf="aleatoryFileUploaded" type="button" class="button is-small is-light mt-2" (click)="clearAleatoryFile()">Limpiar selección</button>
+    </div>
+
+    <div class="file has-name is-boxed is-centered mt-2 p-1">
+      <label class="file-label" (dragover)="onDragOver($event, 'referenceFiles')" (dragleave)="onDragLeave($event, 'referenceFiles')" (drop)="onDrop($event, 'referenceFiles')"
+        [ngClass]="{'dragging': isDraggingReferenceFiles}">
+        <input class="file-input" type="file" name="referenceFiles" accept=".sqlite3" multiple [disabled]="isUploading" (change)="onSelected($event, 'referenceFiles')">
+        <span class="file-cta">
+          <span class="file-icon is-centered">
+            <i class="fa-solid fa-upload fa-2xl fa-fade mt-5"></i>
+          </span>
+          <span class="file-label mt-5">Bases de referencia</span>
+          <span class="file-label">(Una o más referencias SQLITE3)</span>
+        </span>
+        <span class="file-name" [ngClass]="{'has-background-warning has-text-dark': !referenceFilesUploaded, 'has-background-primary-dark has-text-white': referenceFilesUploaded}">
+          {{referenceFileNames.length ? referenceFileNames.join('\n') : "No hay ningún archivo cargado"}}
+        </span>
+      </label>
+      <button *ngIf="referenceFilesUploaded" type="button" class="button is-small is-light mt-2" (click)="clearReferenceFiles()">Limpiar selección</button>
     </div>
 
     <div class="file has-name is-boxed is-centered mt-2 p-1">
       <label class="file-label" (dragover)="onDragOver($event, 'conf')" (dragleave)="onDragLeave($event, 'conf') "(drop)="onDrop($event, 'conf')"
       [ngClass]="{'dragging': isDraggingConf}">
-        <input  class="file-input" type="file" name="resume" accept=".conf" multiple (change)="onSelected($event, 'conf')" >
+        <input class="file-input" type="file" name="resume" accept=".conf" multiple [disabled]="isUploading" (change)="onSelected($event, 'conf')" >
         <span class="file-cta">
           <span class="file-icon is-centered ">
               <i class="fa-solid fa-file fa-2xl fa-fade mt-5"></i>
           </span>
           <span class="file-label mt-5">
-            Arrastra o selecciona los 3 ficheros de configuración Robomap
+            Arrastra o selecciona los 3 ficheros de configuración Robomap (opcional)
           </span>
           <span class="file-label">
             (1º Config. 2º P. Aleatorios. 3º P. Referencia.)
@@ -77,7 +94,7 @@
   <div class="file has-name is-boxed is-centered mt-2 p-1">
     <label class="file-label" (dragover)="onDragOver($event, 'image')" (dragleave)="onDragLeave($event, 'image') "(drop)="onDrop($event, 'image')"
       [ngClass]="{'dragging': isDraggingImage}">
-      <input class="file-input" type="file" name="images" accept="image/*" multiple (change)="onSelected($event, 'image')">
+      <input class="file-input" type="file" name="images" accept="image/*" multiple [disabled]="isUploading" (change)="onSelected($event, 'image')">
       <span class="file-cta">
         <span class="file-icon is-centered ">
           <i class="fa-solid fa-image fa-2xl fa-fade mt-5"></i>
@@ -92,7 +109,13 @@
       <span class="file-name" [ngClass]="{'has-background-warning has-text-dark': !imageUploaded, 'has-background-primary-dark has-text-white': imageUploaded, 'vertical-center': !imageUploaded}">{{imageNames.length ? imageNames.join('\n') : "No hay ningún archivo cargado"}}</span>
     </label>
   </div>
+  <div *ngIf="isUploading" class="container mt-5">
+    <progress class="progress is-link" [value]="importProgress" max="100">{{importProgress}}%</progress>
+    <p class="has-text-centered has-text-weight-semibold">{{importStatusMessage}} ({{importProgress}}%)</p>
+  </div>
   <div class="container has-text-centered mt-6">
-    <button class="button is-link is-rounded" (click)="uploadCampaign()" [disabled]="!secondFileUploaded || !uploadForm.valid || !allConfsUploaded">Guardar campaña</button>
+    <button class="button is-link is-rounded" (click)="uploadCampaign()" [class.is-loading]="isUploading" [disabled]="!aleatoryFileUploaded || !referenceFilesUploaded || !uploadForm.valid || (selectedConfFiles.length > 0 && !allConfsUploaded) || isUploading">
+      {{isUploading ? 'Importando campaña...' : 'Guardar campaña'}}
+    </button>
   </div>
 </form>

@@ -3,93 +3,124 @@
 </div>
 
 <div class="card-content">
-  <div class="">
-  <div class="column is-fullwidth">
-    <div class="media-content">
-      <p class="title is-4">{{ campaign.Name }}</p>
-      <div class="mb-5 has-text-left has-text-grey">
-        {{ campaign.Date| date: 'dd-MM-yyyy'  }}
+  <div>
+    <div class="column is-fullwidth">
+      <div class="media-content">
+        <p class="title is-4">{{ campaign.Name }}</p>
+        <div class="mb-5 has-text-left has-text-grey">
+          {{ campaign.Date | date: 'dd-MM-yyyy' }}
+        </div>
+        <p class="subtitle is-6">{{ campaign.Description }}</p>
+      </div>
     </div>
-      <p class="subtitle is-6">{{ campaign.Description}}</p>
-    </div>
-  </div>
-  <div class="column is-fullwidth">
-    <div class="card-image">
-      <owl-carousel-o [options]="customOptions">
-        <ng-container *ngFor="let campaignImage of campaignImages">
-          <ng-template carouselSlide>
-            <img [src]="campaignImage">
-          </ng-template>
-        </ng-container> 
-       </owl-carousel-o>
+    <div class="column is-fullwidth">
+      <div class="card-image">
+        <owl-carousel-o [options]="customOptions">
+          <ng-container *ngFor="let campaignImage of campaignImages">
+            <ng-template carouselSlide>
+              <img [src]="campaignImage">
+            </ng-template>
+          </ng-container>
+        </owl-carousel-o>
       </div>
     </div>
   </div>
+
   <div class="column is-fullwidth">
     <div class="has-text-centered">
-      <mat-button-toggle-group name="fontStyle" aria-label="Font Style" (change)="switchCampaignData($event)" value="aleatory">
+      <mat-button-toggle-group
+        name="campaignType"
+        aria-label="Tipo de campaña"
+        (change)="switchCampaignData($event)"
+        [value]="selectedCampaignType">
         <mat-button-toggle value="aleatory">Puntos aleatorios</mat-button-toggle>
         <mat-button-toggle value="reference">Puntos de referencia</mat-button-toggle>
       </mat-button-toggle-group>
     </div>
   </div>
+
   <div class="content">
-    <ul>  
-      <li [ngClass]="{'opt-selected': opt == 1}">Capturas tomadas: <a (click)="optionSelected('captures')">{{selectedCamaign?.campaignSequence.Capture}}</a></li> 
-      <li [ngClass]="{'opt-selected': opt == 2}">Señales de Beacon BLE: <a (click)="optionSelected('beacon_signal')">{{selectedCamaign?.campaignSequence.Beacon_BLE_Signal}}</a></li>
-      <li [ngClass]="{'opt-selected': opt == 3}">Cofiguraciones de Beacons: <a (click)="optionSelected('beacon_config')">{{this.campaignConfigs}}</a></li>
-      <li>Tiempo de muestreo: {{campaign.Duration}} seg</li>
-      <li>Rotaciones: {{campaign.Rotations}}</li>
-      <li>Dongle utilizado: {{selectedCamaign?.dongleName}}</li>
+    <ul>
+      <li [ngClass]="{'opt-selected': opt === 1}">
+        Capturas tomadas:
+        <a (click)="optionSelected('captures')">{{ selectedCampaign?.campaignSequence?.Capture }}</a>
+      </li>
+      <li [ngClass]="{'opt-selected': opt === 2}">
+        Señales de Beacon BLE:
+        <a (click)="optionSelected('beacon_signal')">{{ selectedCampaign?.campaignSequence?.Beacon_BLE_Signal }}</a>
+      </li>
+      <li [ngClass]="{'opt-selected': opt === 3}">
+        Configuraciones de Beacons:
+        <a (click)="optionSelected('beacon_config')">{{ campaignConfigs }}</a>
+      </li>
+      <li>Tiempo de muestreo: {{ selectedCampaign?.Duration }} seg</li>
+      <li>Rotaciones: {{ selectedCampaign?.Rotations }}</li>
+      <li>Dongle utilizado: {{ selectedCampaign?.dongleName }}</li>
     </ul>
   </div>
-
 </div>
 
 <hr class="is-divider has-background-grey-lighter">
 
-
-<div #opt1 class="table-container p-5" [hidden]="opt !== 1">
-  <table mat-table [dataSource]="capturesDataSource" class="table is-fullwidth" #capturesTable>
-
+<div class="table-container p-5" [hidden]="opt !== 1">
+  <progress *ngIf="capturesLoading" class="progress is-small is-link" max="100"></progress>
+  <table mat-table [dataSource]="capturesDataSource" class="table is-fullwidth">
     <ng-container matColumnDef="{{column}}" *ngFor="let column of capturesColumns">
-      <th mat-header-cell *matHeaderCellDef>{{column}}</th>
-      <td mat-cell *matCellDef="let element">{{element[column]}}</td>
+      <th mat-header-cell *matHeaderCellDef>{{ column }}</th>
+      <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="capturesColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: capturesColumns;"></tr>
   </table>
 
-  <mat-paginator #capturesPaginator [pageSizeOptions]="pageSizes" [pageSize]="defaultPageSize"  showFirstLastButtons ></mat-paginator>
+  <mat-paginator
+    [length]="capturesTotal"
+    [pageIndex]="capturesPageIndex"
+    [pageSize]="capturesPageSize"
+    [pageSizeOptions]="pageSizes"
+    (page)="onCapturesPage($event)"
+    showFirstLastButtons>
+  </mat-paginator>
 </div>
 
-<div #opt2 class="table-container p-5" [hidden]="opt !== 2">
-  <table mat-table [dataSource]="signalsDataSource" class="table is-fullwidth" #signalsTable>
-
+<div class="table-container p-5" [hidden]="opt !== 2">
+  <progress *ngIf="signalsLoading" class="progress is-small is-link" max="100"></progress>
+  <table mat-table [dataSource]="signalsDataSource" class="table is-fullwidth">
     <ng-container matColumnDef="{{column}}" *ngFor="let column of signalsColumns">
-      <th mat-header-cell *matHeaderCellDef>{{column}}</th>
-      <td mat-cell *matCellDef="let element">{{element[column]}}</td>
+      <th mat-header-cell *matHeaderCellDef>{{ column }}</th>
+      <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="signalsColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: signalsColumns;"></tr>
   </table>
 
-  <mat-paginator #signalsPaginator [pageSizeOptions]="pageSizes" [pageSize]="defaultPageSize" showFirstLastButtons ></mat-paginator>
+  <mat-paginator
+    [length]="signalsTotal"
+    [pageIndex]="signalsPageIndex"
+    [pageSize]="signalsPageSize"
+    [pageSizeOptions]="pageSizes"
+    (page)="onSignalsPage($event)"
+    showFirstLastButtons>
+  </mat-paginator>
 </div>
 
-<div #opt3 class="table-container p-5" [hidden]="opt !== 3">
-  <table mat-table [dataSource]="configsDataSource" class="table is-fullwidth" #configsTable>
-
+<div class="table-container p-5" [hidden]="opt !== 3">
+  <table mat-table [dataSource]="configsDataSource" class="table is-fullwidth">
     <ng-container matColumnDef="{{column}}" *ngFor="let column of configsColumns">
-      <th mat-header-cell *matHeaderCellDef>{{column}}</th>
-      <td mat-cell *matCellDef="let element">{{element[column]}}</td>
+      <th mat-header-cell *matHeaderCellDef>{{ column }}</th>
+      <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="configsColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: configsColumns;"></tr>
   </table>
 
-  <mat-paginator #configsPaginator [pageSizeOptions]="pageSizes" [pageSize]="defaultPageSize" showFirstLastButtons ></mat-paginator>
+  <mat-paginator
+    #configsPaginator
+    [pageSizeOptions]="pageSizes"
+    [pageSize]="defaultPageSize"
+    showFirstLastButtons>
+  </mat-paginator>
 </div>

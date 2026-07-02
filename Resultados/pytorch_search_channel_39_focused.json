@@ -1,0 +1,1946 @@
+{
+  "campaignId": 2,
+  "protocol": "iBeacon",
+  "channel": "channel_39",
+  "rssiSamples": 20,
+  "folds": 5,
+  "epochs": 900,
+  "best": {
+    "index": 90,
+    "score": 3.2772009682655336,
+    "seconds": 56.506,
+    "configuration": {
+      "width": 32,
+      "blocks": 1,
+      "dropout": 0.25053082082618394,
+      "learningRate": 0.00021997754398486223,
+      "weightDecay": 0.0003449229588703824,
+      "huberDelta": 1.591696334214714,
+      "tailFraction": 0.2,
+      "tailWeight": 0.4009137299886948,
+      "noiseStd": 0.12
+    }
+  },
+  "trials": [
+    {
+      "index": 90,
+      "score": 3.2772009682655336,
+      "seconds": 56.506,
+      "configuration": {
+        "width": 32,
+        "blocks": 1,
+        "dropout": 0.25053082082618394,
+        "learningRate": 0.00021997754398486223,
+        "weightDecay": 0.0003449229588703824,
+        "huberDelta": 1.591696334214714,
+        "tailFraction": 0.2,
+        "tailWeight": 0.4009137299886948,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 60,
+      "score": 3.2944037914276123,
+      "seconds": 49.722,
+      "configuration": {
+        "width": 48,
+        "blocks": 1,
+        "dropout": 0.22527129480804722,
+        "learningRate": 9.9935782840627e-05,
+        "weightDecay": 4.297807648212869e-06,
+        "huberDelta": 1.2149187305479798,
+        "tailFraction": 0.3,
+        "tailWeight": 0.4030856965723776,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 16,
+      "score": 3.305880348682403,
+      "seconds": 68.028,
+      "configuration": {
+        "width": 32,
+        "blocks": 2,
+        "dropout": 0.17826577520645537,
+        "learningRate": 0.00015412787003539128,
+        "weightDecay": 1.6391877112658617e-06,
+        "huberDelta": 1.0107901075412618,
+        "tailFraction": 0.3,
+        "tailWeight": 0.35298687952188934,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 110,
+      "score": 3.3166485095024116,
+      "seconds": 65.584,
+      "configuration": {
+        "width": 24,
+        "blocks": 2,
+        "dropout": 0.2319006844936986,
+        "learningRate": 0.00047947790015875837,
+        "weightDecay": 3.4375524065049625e-05,
+        "huberDelta": 0.5057284045679049,
+        "tailFraction": 0.25,
+        "tailWeight": 0.4864712901039301,
+        "noiseStd": 0.02
+      }
+    },
+    {
+      "index": 20,
+      "score": 3.3275245213508606,
+      "seconds": 54.912,
+      "configuration": {
+        "width": 32,
+        "blocks": 1,
+        "dropout": 0.2951359818556779,
+        "learningRate": 0.0004613278643704854,
+        "weightDecay": 5.865201403330198e-06,
+        "huberDelta": 1.3550422627297198,
+        "tailFraction": 0.3,
+        "tailWeight": 0.8893655001766989,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 2,
+      "score": 3.340896193981171,
+      "seconds": 92.048,
+      "configuration": {
+        "width": 32,
+        "blocks": 5,
+        "dropout": 0.19013949268238683,
+        "learningRate": 0.0001590073006698283,
+        "weightDecay": 0.000302615920233977,
+        "huberDelta": 0.9440505344716812,
+        "tailFraction": 0.2,
+        "tailWeight": 0.5258446253309956,
+        "noiseStd": 0.06
+      }
+    },
+    {
+      "index": 25,
+      "score": 3.3437743926048284,
+      "seconds": 61.518,
+      "configuration": {
+        "width": 32,
+        "blocks": 2,
+        "dropout": 0.27477084148142816,
+        "learningRate": 0.00021359953771627038,
+        "weightDecay": 1.9325504991565195e-05,
+        "huberDelta": 0.4785058100664576,
+        "tailFraction": 0.2,
+        "tailWeight": 0.27250617704914104,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 119,
+      "score": 3.3521937108039856,
+      "seconds": 33.395,
+      "configuration": {
+        "width": 96,
+        "blocks": 1,
+        "dropout": 0.19575676526510397,
+        "learningRate": 6.25026113620061e-05,
+        "weightDecay": 8.685824828869947e-06,
+        "huberDelta": 1.4734539763971708,
+        "tailFraction": 0.1,
+        "tailWeight": 0.6096589125023218,
+        "noiseStd": 0.06
+      }
+    },
+    {
+      "index": 88,
+      "score": 3.353683602809906,
+      "seconds": 62.185,
+      "configuration": {
+        "width": 48,
+        "blocks": 2,
+        "dropout": 0.39302727966118955,
+        "learningRate": 0.00031553801852122327,
+        "weightDecay": 0.008260166630933886,
+        "huberDelta": 1.2993873789361372,
+        "tailFraction": 0.1,
+        "tailWeight": 0.8958940343294695,
+        "noiseStd": 0.06
+      }
+    },
+    {
+      "index": 12,
+      "score": 3.3570230793952947,
+      "seconds": 42.719,
+      "configuration": {
+        "width": 48,
+        "blocks": 1,
+        "dropout": 0.3528893273905738,
+        "learningRate": 0.00029046264785995114,
+        "weightDecay": 0.0007117037525581123,
+        "huberDelta": 1.621707715105341,
+        "tailFraction": 0.3,
+        "tailWeight": 0.36591744859140707,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 36,
+      "score": 3.358074052333832,
+      "seconds": 89.752,
+      "configuration": {
+        "width": 24,
+        "blocks": 5,
+        "dropout": 0.30209907822093884,
+        "learningRate": 0.0004429631937754787,
+        "weightDecay": 0.004661881544608501,
+        "huberDelta": 1.5352022444006694,
+        "tailFraction": 0.25,
+        "tailWeight": 0.674387982070722,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 57,
+      "score": 3.3613418316841126,
+      "seconds": 57.275,
+      "configuration": {
+        "width": 48,
+        "blocks": 1,
+        "dropout": 0.3355429873638583,
+        "learningRate": 0.00010961271896352773,
+        "weightDecay": 1.551558066595914e-06,
+        "huberDelta": 2.1968703868244446,
+        "tailFraction": 0.25,
+        "tailWeight": 0.9088698215168446,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 54,
+      "score": 3.3614991021156313,
+      "seconds": 58.427,
+      "configuration": {
+        "width": 32,
+        "blocks": 2,
+        "dropout": 0.39496645172488765,
+        "learningRate": 0.0004488121467352479,
+        "weightDecay": 0.01331737428830704,
+        "huberDelta": 1.7973325178522201,
+        "tailFraction": 0.3,
+        "tailWeight": 0.20819044108939683,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 73,
+      "score": 3.361727976799011,
+      "seconds": 69.438,
+      "configuration": {
+        "width": 32,
+        "blocks": 3,
+        "dropout": 0.3692364407306631,
+        "learningRate": 0.00024524368585491824,
+        "weightDecay": 1.8961517962065145e-06,
+        "huberDelta": 2.521656049703777,
+        "tailFraction": 0.15,
+        "tailWeight": 0.8255198639232274,
+        "noiseStd": 0.06
+      }
+    },
+    {
+      "index": 86,
+      "score": 3.3633804702758794,
+      "seconds": 45.656,
+      "configuration": {
+        "width": 64,
+        "blocks": 1,
+        "dropout": 0.2978620231080864,
+        "learningRate": 0.00021872923877245875,
+        "weightDecay": 0.00772209929280155,
+        "huberDelta": 0.9337592868788327,
+        "tailFraction": 0.1,
+        "tailWeight": 0.9396833901076093,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 41,
+      "score": 3.36429744720459,
+      "seconds": 64.543,
+      "configuration": {
+        "width": 64,
+        "blocks": 2,
+        "dropout": 0.2802076658606084,
+        "learningRate": 8.193291598307159e-05,
+        "weightDecay": 0.00010642817027777004,
+        "huberDelta": 1.7985053739184114,
+        "tailFraction": 0.3,
+        "tailWeight": 0.21592342669169495,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 63,
+      "score": 3.3674434614181523,
+      "seconds": 83.251,
+      "configuration": {
+        "width": 24,
+        "blocks": 5,
+        "dropout": 0.22245131478013513,
+        "learningRate": 0.00028888328610303626,
+        "weightDecay": 3.602664475196511e-06,
+        "huberDelta": 2.193663112451791,
+        "tailFraction": 0.15,
+        "tailWeight": 0.4061678810663055,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 118,
+      "score": 3.371862814426423,
+      "seconds": 52.638,
+      "configuration": {
+        "width": 48,
+        "blocks": 2,
+        "dropout": 0.22888283554867966,
+        "learningRate": 9.350815173269274e-05,
+        "weightDecay": 1.4519681705180845e-07,
+        "huberDelta": 1.4257226821842588,
+        "tailFraction": 0.2,
+        "tailWeight": 0.4308082390134408,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 58,
+      "score": 3.3760267734527587,
+      "seconds": 96.259,
+      "configuration": {
+        "width": 32,
+        "blocks": 5,
+        "dropout": 0.34579269516211786,
+        "learningRate": 0.0002571131540987201,
+        "weightDecay": 4.363220991171248e-05,
+        "huberDelta": 1.1120866911931826,
+        "tailFraction": 0.15,
+        "tailWeight": 0.7196810376377387,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 101,
+      "score": 3.377178039550781,
+      "seconds": 87.624,
+      "configuration": {
+        "width": 24,
+        "blocks": 3,
+        "dropout": 0.22632870622640586,
+        "learningRate": 0.00021243167812373676,
+        "weightDecay": 7.161109278279008e-06,
+        "huberDelta": 0.6692488136036925,
+        "tailFraction": 0.3,
+        "tailWeight": 0.9472886294414018,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 35,
+      "score": 3.377962670326233,
+      "seconds": 83.216,
+      "configuration": {
+        "width": 24,
+        "blocks": 4,
+        "dropout": 0.26025780070654286,
+        "learningRate": 0.0006847209603780114,
+        "weightDecay": 2.075698318172736e-05,
+        "huberDelta": 2.0632408274705223,
+        "tailFraction": 0.1,
+        "tailWeight": 0.2247501171893309,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 84,
+      "score": 3.381070241928101,
+      "seconds": 90.561,
+      "configuration": {
+        "width": 64,
+        "blocks": 4,
+        "dropout": 0.3865179728896753,
+        "learningRate": 9.993171995567855e-05,
+        "weightDecay": 0.007805857633817868,
+        "huberDelta": 1.2635244063796518,
+        "tailFraction": 0.1,
+        "tailWeight": 0.3253585535763746,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 28,
+      "score": 3.3825249457359314,
+      "seconds": 93.221,
+      "configuration": {
+        "width": 32,
+        "blocks": 5,
+        "dropout": 0.3770894632505563,
+        "learningRate": 0.0002616533715396986,
+        "weightDecay": 0.006102702213437881,
+        "huberDelta": 0.7497341910793478,
+        "tailFraction": 0.1,
+        "tailWeight": 0.4488040641287685,
+        "noiseStd": 0.06
+      }
+    },
+    {
+      "index": 103,
+      "score": 3.3840915679931642,
+      "seconds": 90.289,
+      "configuration": {
+        "width": 32,
+        "blocks": 4,
+        "dropout": 0.3513873100327001,
+        "learningRate": 0.0004462010732102016,
+        "weightDecay": 1.4521205745436854e-05,
+        "huberDelta": 2.7543475179553396,
+        "tailFraction": 0.15,
+        "tailWeight": 0.24865712758033912,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 92,
+      "score": 3.3852857089042656,
+      "seconds": 83.057,
+      "configuration": {
+        "width": 48,
+        "blocks": 4,
+        "dropout": 0.31595805585572667,
+        "learningRate": 0.0001097243516213489,
+        "weightDecay": 0.004426829919204122,
+        "huberDelta": 2.506443747558103,
+        "tailFraction": 0.3,
+        "tailWeight": 0.7180275958142436,
+        "noiseStd": 0.02
+      }
+    },
+    {
+      "index": 59,
+      "score": 3.3874768757820135,
+      "seconds": 52.219,
+      "configuration": {
+        "width": 48,
+        "blocks": 1,
+        "dropout": 0.3955306944329333,
+        "learningRate": 0.00028469448352169024,
+        "weightDecay": 9.731408105121652e-06,
+        "huberDelta": 1.7635110662011146,
+        "tailFraction": 0.3,
+        "tailWeight": 0.9076189249397106,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 70,
+      "score": 3.3920629739761354,
+      "seconds": 84.524,
+      "configuration": {
+        "width": 32,
+        "blocks": 5,
+        "dropout": 0.26809262671370165,
+        "learningRate": 0.0004343874608226694,
+        "weightDecay": 4.509385696161472e-06,
+        "huberDelta": 1.2580697127542793,
+        "tailFraction": 0.1,
+        "tailWeight": 0.757314603073482,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 81,
+      "score": 3.3949611115455633,
+      "seconds": 109.327,
+      "configuration": {
+        "width": 32,
+        "blocks": 6,
+        "dropout": 0.391417839078153,
+        "learningRate": 0.0003574150130297659,
+        "weightDecay": 0.0413175451424181,
+        "huberDelta": 1.5086841075309199,
+        "tailFraction": 0.15,
+        "tailWeight": 0.7941240807095291,
+        "noiseStd": 0.02
+      }
+    },
+    {
+      "index": 50,
+      "score": 3.402033035755158,
+      "seconds": 56.834,
+      "configuration": {
+        "width": 24,
+        "blocks": 1,
+        "dropout": 0.1844235356466354,
+        "learningRate": 0.00021659704489354,
+        "weightDecay": 3.336017271893871e-07,
+        "huberDelta": 1.3583363336146697,
+        "tailFraction": 0.2,
+        "tailWeight": 0.8253916308553266,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 32,
+      "score": 3.407467987537384,
+      "seconds": 110.135,
+      "configuration": {
+        "width": 24,
+        "blocks": 6,
+        "dropout": 0.19420133768404813,
+        "learningRate": 0.00013194641485189237,
+        "weightDecay": 0.019033393821641802,
+        "huberDelta": 2.1963149132394766,
+        "tailFraction": 0.15,
+        "tailWeight": 0.9162357531381469,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 93,
+      "score": 3.409789373874664,
+      "seconds": 68.653,
+      "configuration": {
+        "width": 32,
+        "blocks": 4,
+        "dropout": 0.3362994527943746,
+        "learningRate": 0.00037001760220543314,
+        "weightDecay": 0.04898661859931222,
+        "huberDelta": 1.8131083798860748,
+        "tailFraction": 0.3,
+        "tailWeight": 0.9340797361965745,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 37,
+      "score": 3.4122614240646363,
+      "seconds": 96.852,
+      "configuration": {
+        "width": 24,
+        "blocks": 5,
+        "dropout": 0.2620168006918169,
+        "learningRate": 0.00021101333651987714,
+        "weightDecay": 8.221966236856694e-05,
+        "huberDelta": 0.6754460001978955,
+        "tailFraction": 0.3,
+        "tailWeight": 0.9092127511568266,
+        "noiseStd": 0.06
+      }
+    },
+    {
+      "index": 116,
+      "score": 3.4141199612617497,
+      "seconds": 115.092,
+      "configuration": {
+        "width": 24,
+        "blocks": 6,
+        "dropout": 0.3149034278737628,
+        "learningRate": 0.00027476159108566907,
+        "weightDecay": 7.230746582066764e-05,
+        "huberDelta": 0.8909296677879265,
+        "tailFraction": 0.15,
+        "tailWeight": 0.8774391828752561,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 33,
+      "score": 3.4158010292053227,
+      "seconds": 60.285,
+      "configuration": {
+        "width": 64,
+        "blocks": 2,
+        "dropout": 0.18423107293389068,
+        "learningRate": 5.475829525931938e-05,
+        "weightDecay": 0.0008751372241629992,
+        "huberDelta": 2.3672622559998566,
+        "tailFraction": 0.2,
+        "tailWeight": 0.8623720297641273,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 47,
+      "score": 3.4184378314018256,
+      "seconds": 76.588,
+      "configuration": {
+        "width": 48,
+        "blocks": 3,
+        "dropout": 0.20352303042887848,
+        "learningRate": 6.816415348752917e-05,
+        "weightDecay": 3.6325116052080254e-05,
+        "huberDelta": 1.0441014113392282,
+        "tailFraction": 0.15,
+        "tailWeight": 0.35714335963132826,
+        "noiseStd": 0.02
+      }
+    },
+    {
+      "index": 115,
+      "score": 3.419143021106721,
+      "seconds": 67.95,
+      "configuration": {
+        "width": 32,
+        "blocks": 2,
+        "dropout": 0.3020600853104604,
+        "learningRate": 0.00025440398512422736,
+        "weightDecay": 0.04913743358460594,
+        "huberDelta": 1.731152838896945,
+        "tailFraction": 0.3,
+        "tailWeight": 0.5100786110696391,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 114,
+      "score": 3.421253559589386,
+      "seconds": 61.163,
+      "configuration": {
+        "width": 48,
+        "blocks": 2,
+        "dropout": 0.3766212295241258,
+        "learningRate": 0.0006505398777870023,
+        "weightDecay": 0.0003268405864262191,
+        "huberDelta": 1.7656082942003692,
+        "tailFraction": 0.1,
+        "tailWeight": 0.527449211092073,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 56,
+      "score": 3.4216777062416077,
+      "seconds": 59.272,
+      "configuration": {
+        "width": 48,
+        "blocks": 2,
+        "dropout": 0.2342533182194112,
+        "learningRate": 0.00015388995776167234,
+        "weightDecay": 5.9275482766759434e-05,
+        "huberDelta": 2.06503667148522,
+        "tailFraction": 0.15,
+        "tailWeight": 0.5929818756087157,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 78,
+      "score": 3.4217440700531006,
+      "seconds": 67.027,
+      "configuration": {
+        "width": 32,
+        "blocks": 3,
+        "dropout": 0.2522292906865493,
+        "learningRate": 0.0002955804331519931,
+        "weightDecay": 1.1060647294901613e-07,
+        "huberDelta": 2.615772726901232,
+        "tailFraction": 0.3,
+        "tailWeight": 0.19940789825427752,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 31,
+      "score": 3.421840867996216,
+      "seconds": 84.8,
+      "configuration": {
+        "width": 24,
+        "blocks": 3,
+        "dropout": 0.28789783438248584,
+        "learningRate": 0.00012695476177751998,
+        "weightDecay": 0.0003872205831016556,
+        "huberDelta": 1.7415902586083964,
+        "tailFraction": 0.25,
+        "tailWeight": 0.17913379185299413,
+        "noiseStd": 0.02
+      }
+    },
+    {
+      "index": 67,
+      "score": 3.4223201513290404,
+      "seconds": 70.308,
+      "configuration": {
+        "width": 32,
+        "blocks": 2,
+        "dropout": 0.24117805682535956,
+        "learningRate": 7.975559870515877e-05,
+        "weightDecay": 0.003643567142531382,
+        "huberDelta": 2.458431954243082,
+        "tailFraction": 0.25,
+        "tailWeight": 0.38006452061407003,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 42,
+      "score": 3.4223670434951785,
+      "seconds": 107.712,
+      "configuration": {
+        "width": 24,
+        "blocks": 6,
+        "dropout": 0.18172042392652318,
+        "learningRate": 0.00021649271131094337,
+        "weightDecay": 0.01326387557848643,
+        "huberDelta": 0.7409355320276667,
+        "tailFraction": 0.2,
+        "tailWeight": 0.5164301815712276,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 55,
+      "score": 3.424703929424286,
+      "seconds": 51.96,
+      "configuration": {
+        "width": 24,
+        "blocks": 1,
+        "dropout": 0.21846239291373212,
+        "learningRate": 0.0005793919874163379,
+        "weightDecay": 1.3366773089875496e-05,
+        "huberDelta": 1.511599107263823,
+        "tailFraction": 0.2,
+        "tailWeight": 0.15867183020980508,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 0,
+      "score": 3.4250826239585876,
+      "seconds": 76.507,
+      "configuration": {
+        "width": 64,
+        "blocks": 5,
+        "dropout": 0.2690330194429909,
+        "learningRate": 0.0001146299046111118,
+        "weightDecay": 0.0003756608013041003,
+        "huberDelta": 2.2469768776891317,
+        "tailFraction": 0.1,
+        "tailWeight": 0.3223163613871346,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 89,
+      "score": 3.426130273342133,
+      "seconds": 54.558,
+      "configuration": {
+        "width": 48,
+        "blocks": 1,
+        "dropout": 0.2129392638915872,
+        "learningRate": 7.102104278272995e-05,
+        "weightDecay": 0.04611888651608015,
+        "huberDelta": 0.9210133134579829,
+        "tailFraction": 0.1,
+        "tailWeight": 0.8778620897259145,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 61,
+      "score": 3.4301277709007265,
+      "seconds": 69.295,
+      "configuration": {
+        "width": 96,
+        "blocks": 3,
+        "dropout": 0.3052962849436856,
+        "learningRate": 7.983150515083558e-05,
+        "weightDecay": 1.3704178129862304e-07,
+        "huberDelta": 1.010913749839854,
+        "tailFraction": 0.1,
+        "tailWeight": 0.34578156755305955,
+        "noiseStd": 0.06
+      }
+    },
+    {
+      "index": 85,
+      "score": 3.4351437401771547,
+      "seconds": 80.05,
+      "configuration": {
+        "width": 48,
+        "blocks": 5,
+        "dropout": 0.3212363387364651,
+        "learningRate": 5.667645163484112e-05,
+        "weightDecay": 0.020634273525387773,
+        "huberDelta": 0.9242222888936136,
+        "tailFraction": 0.1,
+        "tailWeight": 0.9493296192771021,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 5,
+      "score": 3.4355539846420284,
+      "seconds": 62.457,
+      "configuration": {
+        "width": 24,
+        "blocks": 1,
+        "dropout": 0.3906782861124396,
+        "learningRate": 0.00022822939385125878,
+        "weightDecay": 0.0001463337091399777,
+        "huberDelta": 1.014297628654823,
+        "tailFraction": 0.3,
+        "tailWeight": 0.9079591644466334,
+        "noiseStd": 0.06
+      }
+    },
+    {
+      "index": 24,
+      "score": 3.4389634633064277,
+      "seconds": 75.265,
+      "configuration": {
+        "width": 48,
+        "blocks": 3,
+        "dropout": 0.35626904711624263,
+        "learningRate": 9.639991393221852e-05,
+        "weightDecay": 0.044466160139623775,
+        "huberDelta": 0.674980789435822,
+        "tailFraction": 0.15,
+        "tailWeight": 0.8248055994425433,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 100,
+      "score": 3.4401773524284365,
+      "seconds": 82.295,
+      "configuration": {
+        "width": 96,
+        "blocks": 4,
+        "dropout": 0.37999881502496013,
+        "learningRate": 0.00013796949596336794,
+        "weightDecay": 0.007614853699222904,
+        "huberDelta": 2.1060199239638693,
+        "tailFraction": 0.1,
+        "tailWeight": 0.5316303073939299,
+        "noiseStd": 0.02
+      }
+    },
+    {
+      "index": 117,
+      "score": 3.4472773551940916,
+      "seconds": 90.637,
+      "configuration": {
+        "width": 24,
+        "blocks": 4,
+        "dropout": 0.35358976850614776,
+        "learningRate": 0.00021053274551217815,
+        "weightDecay": 6.717229971466164e-05,
+        "huberDelta": 1.1285724342478325,
+        "tailFraction": 0.3,
+        "tailWeight": 0.7719472401746643,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 19,
+      "score": 3.4494986653327944,
+      "seconds": 74.426,
+      "configuration": {
+        "width": 24,
+        "blocks": 3,
+        "dropout": 0.26661344189844144,
+        "learningRate": 0.0006725388412930945,
+        "weightDecay": 5.373764409341754e-06,
+        "huberDelta": 0.400701817881592,
+        "tailFraction": 0.25,
+        "tailWeight": 0.859893646617253,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 79,
+      "score": 3.455327534675598,
+      "seconds": 97.464,
+      "configuration": {
+        "width": 32,
+        "blocks": 6,
+        "dropout": 0.16730617821827456,
+        "learningRate": 0.00010899613469620699,
+        "weightDecay": 2.54694510762792e-07,
+        "huberDelta": 1.7719159531824444,
+        "tailFraction": 0.15,
+        "tailWeight": 0.4666547824881634,
+        "noiseStd": 0.02
+      }
+    },
+    {
+      "index": 45,
+      "score": 3.4577912092208862,
+      "seconds": 90.713,
+      "configuration": {
+        "width": 24,
+        "blocks": 6,
+        "dropout": 0.3736551081914084,
+        "learningRate": 0.000654911511489999,
+        "weightDecay": 0.007157191807367516,
+        "huberDelta": 1.9550109633640038,
+        "tailFraction": 0.1,
+        "tailWeight": 0.6671892638138638,
+        "noiseStd": 0.02
+      }
+    },
+    {
+      "index": 34,
+      "score": 3.4623088765144354,
+      "seconds": 100.203,
+      "configuration": {
+        "width": 96,
+        "blocks": 6,
+        "dropout": 0.355342882430757,
+        "learningRate": 7.327397357317908e-05,
+        "weightDecay": 0.021547935126866827,
+        "huberDelta": 0.9217241973641725,
+        "tailFraction": 0.15,
+        "tailWeight": 0.31130685025043614,
+        "noiseStd": 0.02
+      }
+    },
+    {
+      "index": 38,
+      "score": 3.4643556642532345,
+      "seconds": 57.919,
+      "configuration": {
+        "width": 96,
+        "blocks": 1,
+        "dropout": 0.2897661004895697,
+        "learningRate": 0.00035630033728771234,
+        "weightDecay": 0.0003673506710344156,
+        "huberDelta": 1.8231656589403311,
+        "tailFraction": 0.1,
+        "tailWeight": 0.6525156941614803,
+        "noiseStd": 0.02
+      }
+    },
+    {
+      "index": 29,
+      "score": 3.4648660159111024,
+      "seconds": 92.485,
+      "configuration": {
+        "width": 64,
+        "blocks": 5,
+        "dropout": 0.2903206364694223,
+        "learningRate": 0.00019789900299163073,
+        "weightDecay": 1.166333182305563e-05,
+        "huberDelta": 1.1296268792643098,
+        "tailFraction": 0.15,
+        "tailWeight": 0.7617604116909079,
+        "noiseStd": 0.06
+      }
+    },
+    {
+      "index": 69,
+      "score": 3.4659004712104795,
+      "seconds": 84.795,
+      "configuration": {
+        "width": 48,
+        "blocks": 6,
+        "dropout": 0.26161837428117574,
+        "learningRate": 0.0001997383257513672,
+        "weightDecay": 1.2153547051150056e-07,
+        "huberDelta": 2.332503672957899,
+        "tailFraction": 0.2,
+        "tailWeight": 0.7739543938424932,
+        "noiseStd": 0.02
+      }
+    },
+    {
+      "index": 51,
+      "score": 3.4682425284385685,
+      "seconds": 64.542,
+      "configuration": {
+        "width": 32,
+        "blocks": 3,
+        "dropout": 0.27360225094805435,
+        "learningRate": 0.00012643174146921508,
+        "weightDecay": 0.027829704638528158,
+        "huberDelta": 2.3966553939517126,
+        "tailFraction": 0.2,
+        "tailWeight": 0.742054076130879,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 21,
+      "score": 3.4696137642860414,
+      "seconds": 77.375,
+      "configuration": {
+        "width": 48,
+        "blocks": 3,
+        "dropout": 0.39034119747909357,
+        "learningRate": 5.026776248860876e-05,
+        "weightDecay": 1.534968691005382e-05,
+        "huberDelta": 2.31154339125013,
+        "tailFraction": 0.2,
+        "tailWeight": 0.36422335486024815,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 87,
+      "score": 3.4712998795509336,
+      "seconds": 71.441,
+      "configuration": {
+        "width": 32,
+        "blocks": 2,
+        "dropout": 0.26595981480264763,
+        "learningRate": 0.0005130209354421759,
+        "weightDecay": 0.004437631519340947,
+        "huberDelta": 1.6097972906841775,
+        "tailFraction": 0.2,
+        "tailWeight": 0.6220876877193264,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 94,
+      "score": 3.4718560552597046,
+      "seconds": 98.332,
+      "configuration": {
+        "width": 64,
+        "blocks": 5,
+        "dropout": 0.24216277324277866,
+        "learningRate": 0.0001467838764209569,
+        "weightDecay": 0.0016406273706221564,
+        "huberDelta": 1.8286404812393724,
+        "tailFraction": 0.2,
+        "tailWeight": 0.5890269788064129,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 75,
+      "score": 3.473344542980194,
+      "seconds": 98.466,
+      "configuration": {
+        "width": 48,
+        "blocks": 5,
+        "dropout": 0.30270846335023494,
+        "learningRate": 6.779990624141061e-05,
+        "weightDecay": 0.0016483374968902908,
+        "huberDelta": 0.51032824918685,
+        "tailFraction": 0.25,
+        "tailWeight": 0.7407827373692932,
+        "noiseStd": 0.02
+      }
+    },
+    {
+      "index": 18,
+      "score": 3.4748359322547913,
+      "seconds": 100.746,
+      "configuration": {
+        "width": 64,
+        "blocks": 6,
+        "dropout": 0.2851106841129353,
+        "learningRate": 8.776141693073333e-05,
+        "weightDecay": 0.0023174705554198497,
+        "huberDelta": 2.213442812256938,
+        "tailFraction": 0.2,
+        "tailWeight": 0.3439519397303278,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 104,
+      "score": 3.4768185138702394,
+      "seconds": 113.951,
+      "configuration": {
+        "width": 32,
+        "blocks": 6,
+        "dropout": 0.3643138997814443,
+        "learningRate": 0.00029951056420914345,
+        "weightDecay": 0.002516630910296019,
+        "huberDelta": 2.7481286798285764,
+        "tailFraction": 0.25,
+        "tailWeight": 0.6679311278338723,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 64,
+      "score": 3.4787180066108703,
+      "seconds": 68.255,
+      "configuration": {
+        "width": 96,
+        "blocks": 2,
+        "dropout": 0.25214030217077704,
+        "learningRate": 5.079393358431589e-05,
+        "weightDecay": 1.7754333931858856e-05,
+        "huberDelta": 1.113569732051232,
+        "tailFraction": 0.15,
+        "tailWeight": 0.3772240872946677,
+        "noiseStd": 0.02
+      }
+    },
+    {
+      "index": 96,
+      "score": 3.4799555206298827,
+      "seconds": 55.899,
+      "configuration": {
+        "width": 64,
+        "blocks": 1,
+        "dropout": 0.34803016969452816,
+        "learningRate": 0.0003450577705038493,
+        "weightDecay": 0.0001336896904207631,
+        "huberDelta": 1.8419415904191645,
+        "tailFraction": 0.2,
+        "tailWeight": 0.47808883530304336,
+        "noiseStd": 0.02
+      }
+    },
+    {
+      "index": 30,
+      "score": 3.481810765266418,
+      "seconds": 57.065,
+      "configuration": {
+        "width": 32,
+        "blocks": 1,
+        "dropout": 0.33786932759090404,
+        "learningRate": 8.024323764990702e-05,
+        "weightDecay": 0.00011784616932771599,
+        "huberDelta": 2.1279994936136424,
+        "tailFraction": 0.15,
+        "tailWeight": 0.4104235841883105,
+        "noiseStd": 0.06
+      }
+    },
+    {
+      "index": 65,
+      "score": 3.485094428062439,
+      "seconds": 79.968,
+      "configuration": {
+        "width": 24,
+        "blocks": 4,
+        "dropout": 0.15901459490128314,
+        "learningRate": 5.155759786450469e-05,
+        "weightDecay": 6.035087595302642e-05,
+        "huberDelta": 1.6104238911892335,
+        "tailFraction": 0.15,
+        "tailWeight": 0.2519176827098989,
+        "noiseStd": 0.06
+      }
+    },
+    {
+      "index": 111,
+      "score": 3.501309161186218,
+      "seconds": 96.644,
+      "configuration": {
+        "width": 48,
+        "blocks": 5,
+        "dropout": 0.26370698338127385,
+        "learningRate": 0.00037426711179721055,
+        "weightDecay": 0.000770628056776142,
+        "huberDelta": 2.4084466530279154,
+        "tailFraction": 0.15,
+        "tailWeight": 0.6916787978275427,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 83,
+      "score": 3.5054755258560184,
+      "seconds": 66.564,
+      "configuration": {
+        "width": 96,
+        "blocks": 2,
+        "dropout": 0.34942444075011453,
+        "learningRate": 5.418079247911484e-05,
+        "weightDecay": 0.0022282198613596898,
+        "huberDelta": 1.1238021251900887,
+        "tailFraction": 0.3,
+        "tailWeight": 0.8400728185516354,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 1,
+      "score": 3.5061394596099857,
+      "seconds": 73.46,
+      "configuration": {
+        "width": 32,
+        "blocks": 3,
+        "dropout": 0.2108684142685548,
+        "learningRate": 0.0005587712928360321,
+        "weightDecay": 0.007907727166551668,
+        "huberDelta": 1.2449403461514417,
+        "tailFraction": 0.15,
+        "tailWeight": 0.761034742230633,
+        "noiseStd": 0.06
+      }
+    },
+    {
+      "index": 62,
+      "score": 3.516758902072907,
+      "seconds": 70.434,
+      "configuration": {
+        "width": 64,
+        "blocks": 2,
+        "dropout": 0.3576350905453555,
+        "learningRate": 0.0003006976785330557,
+        "weightDecay": 0.0029969101674742074,
+        "huberDelta": 2.2738343494484736,
+        "tailFraction": 0.2,
+        "tailWeight": 0.20624931811278324,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 105,
+      "score": 3.5168580579757687,
+      "seconds": 96.314,
+      "configuration": {
+        "width": 64,
+        "blocks": 4,
+        "dropout": 0.3504931015486349,
+        "learningRate": 6.220539264071187e-05,
+        "weightDecay": 1.2606884593624588e-05,
+        "huberDelta": 0.4185750041912328,
+        "tailFraction": 0.25,
+        "tailWeight": 0.44337228398987183,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 3,
+      "score": 3.5189380741119387,
+      "seconds": 102.08,
+      "configuration": {
+        "width": 24,
+        "blocks": 5,
+        "dropout": 0.3370882285953129,
+        "learningRate": 0.00013025324454760787,
+        "weightDecay": 0.00012155189274860704,
+        "huberDelta": 0.8679311407523659,
+        "tailFraction": 0.3,
+        "tailWeight": 0.4386489788900053,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 82,
+      "score": 3.5203300619125364,
+      "seconds": 63.7,
+      "configuration": {
+        "width": 32,
+        "blocks": 2,
+        "dropout": 0.30737312240757686,
+        "learningRate": 6.933303832615327e-05,
+        "weightDecay": 0.0011122349928210258,
+        "huberDelta": 0.829101074255818,
+        "tailFraction": 0.25,
+        "tailWeight": 0.8219224672246325,
+        "noiseStd": 0.02
+      }
+    },
+    {
+      "index": 52,
+      "score": 3.520379283428192,
+      "seconds": 69.943,
+      "configuration": {
+        "width": 48,
+        "blocks": 2,
+        "dropout": 0.28562491694398023,
+        "learningRate": 0.0005427946489505899,
+        "weightDecay": 0.035684100210176206,
+        "huberDelta": 0.8135233590596611,
+        "tailFraction": 0.1,
+        "tailWeight": 0.3423647173329786,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 80,
+      "score": 3.5213427090644833,
+      "seconds": 93.22,
+      "configuration": {
+        "width": 48,
+        "blocks": 5,
+        "dropout": 0.29195395179112615,
+        "learningRate": 5.12768613647389e-05,
+        "weightDecay": 6.125262711606877e-05,
+        "huberDelta": 2.4596425026732214,
+        "tailFraction": 0.2,
+        "tailWeight": 0.34530182094065953,
+        "noiseStd": 0.06
+      }
+    },
+    {
+      "index": 26,
+      "score": 3.5225075459480286,
+      "seconds": 67.228,
+      "configuration": {
+        "width": 32,
+        "blocks": 2,
+        "dropout": 0.2925138286455419,
+        "learningRate": 0.0005982470134687974,
+        "weightDecay": 6.507880749529334e-05,
+        "huberDelta": 1.965149418909709,
+        "tailFraction": 0.3,
+        "tailWeight": 0.8233174117751543,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 9,
+      "score": 3.526107189655304,
+      "seconds": 96.419,
+      "configuration": {
+        "width": 48,
+        "blocks": 5,
+        "dropout": 0.3984315469866615,
+        "learningRate": 0.00016645633195728595,
+        "weightDecay": 0.00023129359141156372,
+        "huberDelta": 0.7917818723263061,
+        "tailFraction": 0.3,
+        "tailWeight": 0.8073295548427019,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 113,
+      "score": 3.534329850673676,
+      "seconds": 86.405,
+      "configuration": {
+        "width": 64,
+        "blocks": 5,
+        "dropout": 0.34315080146225885,
+        "learningRate": 0.00011839510317432826,
+        "weightDecay": 9.290325406008178e-07,
+        "huberDelta": 2.7188970452265067,
+        "tailFraction": 0.15,
+        "tailWeight": 0.4883270625595827,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 44,
+      "score": 3.536338267326355,
+      "seconds": 81.187,
+      "configuration": {
+        "width": 64,
+        "blocks": 4,
+        "dropout": 0.24193542059739387,
+        "learningRate": 0.0002125609884723673,
+        "weightDecay": 1.2337047265792431e-05,
+        "huberDelta": 0.6173490328006508,
+        "tailFraction": 0.25,
+        "tailWeight": 0.8465610078342727,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 97,
+      "score": 3.5393495082855226,
+      "seconds": 101.29,
+      "configuration": {
+        "width": 24,
+        "blocks": 6,
+        "dropout": 0.26521409399795176,
+        "learningRate": 8.985666930066627e-05,
+        "weightDecay": 8.072209802052338e-05,
+        "huberDelta": 1.8922263973672635,
+        "tailFraction": 0.25,
+        "tailWeight": 0.3372396364891089,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 48,
+      "score": 3.5450342369079593,
+      "seconds": 104.805,
+      "configuration": {
+        "width": 32,
+        "blocks": 6,
+        "dropout": 0.23924144775710063,
+        "learningRate": 0.00011917831600098675,
+        "weightDecay": 0.01122192089613269,
+        "huberDelta": 2.7151716922702773,
+        "tailFraction": 0.3,
+        "tailWeight": 0.6662632890294369,
+        "noiseStd": 0.06
+      }
+    },
+    {
+      "index": 15,
+      "score": 3.547308070659638,
+      "seconds": 73.757,
+      "configuration": {
+        "width": 32,
+        "blocks": 3,
+        "dropout": 0.26396823757241006,
+        "learningRate": 5.6983450679951596e-05,
+        "weightDecay": 3.5529900160123786e-05,
+        "huberDelta": 1.5561839149320598,
+        "tailFraction": 0.15,
+        "tailWeight": 0.19516777378448172,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 109,
+      "score": 3.5551467347145076,
+      "seconds": 84.936,
+      "configuration": {
+        "width": 96,
+        "blocks": 3,
+        "dropout": 0.20486576358545164,
+        "learningRate": 0.0001078539925138219,
+        "weightDecay": 0.02216958028762424,
+        "huberDelta": 1.4693389145817681,
+        "tailFraction": 0.15,
+        "tailWeight": 0.9363588781686897,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 106,
+      "score": 3.558059153556824,
+      "seconds": 55.723,
+      "configuration": {
+        "width": 24,
+        "blocks": 1,
+        "dropout": 0.3358404668535444,
+        "learningRate": 5.150598043810155e-05,
+        "weightDecay": 6.247294692793188e-06,
+        "huberDelta": 2.4917547010381815,
+        "tailFraction": 0.2,
+        "tailWeight": 0.7351852834504987,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 68,
+      "score": 3.5593669414520264,
+      "seconds": 89.136,
+      "configuration": {
+        "width": 48,
+        "blocks": 5,
+        "dropout": 0.219305898627429,
+        "learningRate": 0.0001647578984253889,
+        "weightDecay": 7.410367505564471e-06,
+        "huberDelta": 1.1897025804129722,
+        "tailFraction": 0.3,
+        "tailWeight": 0.18444014716660995,
+        "noiseStd": 0.06
+      }
+    },
+    {
+      "index": 53,
+      "score": 3.560606672763825,
+      "seconds": 110.058,
+      "configuration": {
+        "width": 96,
+        "blocks": 6,
+        "dropout": 0.2925799561634661,
+        "learningRate": 0.0005935758462098158,
+        "weightDecay": 0.010860744558817472,
+        "huberDelta": 1.8194803448889765,
+        "tailFraction": 0.1,
+        "tailWeight": 0.784334476234874,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 40,
+      "score": 3.5636030030250554,
+      "seconds": 88.316,
+      "configuration": {
+        "width": 64,
+        "blocks": 4,
+        "dropout": 0.3169604057198553,
+        "learningRate": 0.0001750746060704114,
+        "weightDecay": 0.0067855137128833825,
+        "huberDelta": 0.48367728041789876,
+        "tailFraction": 0.25,
+        "tailWeight": 0.4185224530817099,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 22,
+      "score": 3.5645545578002933,
+      "seconds": 45.033,
+      "configuration": {
+        "width": 24,
+        "blocks": 1,
+        "dropout": 0.39038120555525935,
+        "learningRate": 7.275774998699567e-05,
+        "weightDecay": 0.018453481550384856,
+        "huberDelta": 1.2330118087154398,
+        "tailFraction": 0.2,
+        "tailWeight": 0.6758608312675268,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 71,
+      "score": 3.584309632778168,
+      "seconds": 103.285,
+      "configuration": {
+        "width": 48,
+        "blocks": 6,
+        "dropout": 0.17871047920914496,
+        "learningRate": 7.151856652354146e-05,
+        "weightDecay": 0.0005751965965668512,
+        "huberDelta": 1.686101403275282,
+        "tailFraction": 0.1,
+        "tailWeight": 0.44240332210414823,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 13,
+      "score": 3.5854982542991634,
+      "seconds": 69.848,
+      "configuration": {
+        "width": 24,
+        "blocks": 3,
+        "dropout": 0.23109444776786134,
+        "learningRate": 0.00014055380259269068,
+        "weightDecay": 0.008947660592100505,
+        "huberDelta": 1.4097806363036476,
+        "tailFraction": 0.1,
+        "tailWeight": 0.8065858139695915,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 7,
+      "score": 3.588775117397309,
+      "seconds": 93.349,
+      "configuration": {
+        "width": 24,
+        "blocks": 5,
+        "dropout": 0.22842632311567448,
+        "learningRate": 5.288093178034446e-05,
+        "weightDecay": 0.004814604030849997,
+        "huberDelta": 0.9916793842383853,
+        "tailFraction": 0.2,
+        "tailWeight": 0.9304741649705599,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 112,
+      "score": 3.5957449650764466,
+      "seconds": 74.498,
+      "configuration": {
+        "width": 64,
+        "blocks": 3,
+        "dropout": 0.1934676275287103,
+        "learningRate": 0.0003482783449141847,
+        "weightDecay": 0.005506140440047167,
+        "huberDelta": 2.1404661873342623,
+        "tailFraction": 0.25,
+        "tailWeight": 0.2842758244336926,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 102,
+      "score": 3.614729583263397,
+      "seconds": 83.711,
+      "configuration": {
+        "width": 48,
+        "blocks": 4,
+        "dropout": 0.17199655838800074,
+        "learningRate": 0.0002439665960313194,
+        "weightDecay": 0.001982497694735169,
+        "huberDelta": 2.3338457751767545,
+        "tailFraction": 0.2,
+        "tailWeight": 0.15534573776706057,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 8,
+      "score": 3.6177800822258,
+      "seconds": 81.299,
+      "configuration": {
+        "width": 48,
+        "blocks": 4,
+        "dropout": 0.3822041080561835,
+        "learningRate": 0.000666308512617878,
+        "weightDecay": 2.5294235563615097e-07,
+        "huberDelta": 0.7909743367252623,
+        "tailFraction": 0.25,
+        "tailWeight": 0.7501080558567831,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 6,
+      "score": 3.6182993054389954,
+      "seconds": 74.92,
+      "configuration": {
+        "width": 96,
+        "blocks": 2,
+        "dropout": 0.22273826948118267,
+        "learningRate": 0.00026645010814744765,
+        "weightDecay": 0.013011994295464218,
+        "huberDelta": 2.5323047760518085,
+        "tailFraction": 0.15,
+        "tailWeight": 0.6047769962230107,
+        "noiseStd": 0.06
+      }
+    },
+    {
+      "index": 11,
+      "score": 3.620898671150208,
+      "seconds": 69.302,
+      "configuration": {
+        "width": 24,
+        "blocks": 3,
+        "dropout": 0.37361667751890715,
+        "learningRate": 5.218621992265391e-05,
+        "weightDecay": 5.238108826684226e-07,
+        "huberDelta": 2.2206144143080846,
+        "tailFraction": 0.3,
+        "tailWeight": 0.9023977542797867,
+        "noiseStd": 0.02
+      }
+    },
+    {
+      "index": 4,
+      "score": 3.6261839318275455,
+      "seconds": 115.272,
+      "configuration": {
+        "width": 48,
+        "blocks": 6,
+        "dropout": 0.19016185777102643,
+        "learningRate": 0.00043900550315804346,
+        "weightDecay": 3.119677360943471e-07,
+        "huberDelta": 2.03799051962143,
+        "tailFraction": 0.3,
+        "tailWeight": 0.6530061643578537,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 27,
+      "score": 3.6365645217895506,
+      "seconds": 86.05,
+      "configuration": {
+        "width": 64,
+        "blocks": 3,
+        "dropout": 0.21610890562721674,
+        "learningRate": 0.0003026418685181542,
+        "weightDecay": 0.0010616250539631207,
+        "huberDelta": 1.065873897305572,
+        "tailFraction": 0.15,
+        "tailWeight": 0.541253030430427,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 107,
+      "score": 3.6386930680274965,
+      "seconds": 84.114,
+      "configuration": {
+        "width": 24,
+        "blocks": 4,
+        "dropout": 0.2983346500583502,
+        "learningRate": 6.771558987995303e-05,
+        "weightDecay": 0.0032758848124618935,
+        "huberDelta": 1.7699088408412464,
+        "tailFraction": 0.25,
+        "tailWeight": 0.5895585522199496,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 39,
+      "score": 3.648820533752442,
+      "seconds": 99.47,
+      "configuration": {
+        "width": 64,
+        "blocks": 5,
+        "dropout": 0.32772592315792815,
+        "learningRate": 0.00037134620016110833,
+        "weightDecay": 1.082299825614203e-05,
+        "huberDelta": 1.8281871057856667,
+        "tailFraction": 0.15,
+        "tailWeight": 0.2287580069415834,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 98,
+      "score": 3.6748824048042303,
+      "seconds": 67.367,
+      "configuration": {
+        "width": 64,
+        "blocks": 2,
+        "dropout": 0.17814735911386068,
+        "learningRate": 0.0004080429325054909,
+        "weightDecay": 0.008506285732375623,
+        "huberDelta": 0.5302029336585388,
+        "tailFraction": 0.15,
+        "tailWeight": 0.3939848079785447,
+        "noiseStd": 0.08
+      }
+    },
+    {
+      "index": 43,
+      "score": 3.6981260561943055,
+      "seconds": 68.193,
+      "configuration": {
+        "width": 64,
+        "blocks": 2,
+        "dropout": 0.21422167819548013,
+        "learningRate": 0.00024149927925835562,
+        "weightDecay": 1.448224546719039e-06,
+        "huberDelta": 0.4280022400498492,
+        "tailFraction": 0.25,
+        "tailWeight": 0.2457139927462451,
+        "noiseStd": 0.02
+      }
+    },
+    {
+      "index": 23,
+      "score": 3.7003344821929938,
+      "seconds": 80.309,
+      "configuration": {
+        "width": 96,
+        "blocks": 3,
+        "dropout": 0.3149509746611614,
+        "learningRate": 0.00026844817733075963,
+        "weightDecay": 8.130375398301208e-05,
+        "huberDelta": 1.2397838574518658,
+        "tailFraction": 0.2,
+        "tailWeight": 0.35302390597836036,
+        "noiseStd": 0.06
+      }
+    },
+    {
+      "index": 66,
+      "score": 3.710520253181458,
+      "seconds": 69.459,
+      "configuration": {
+        "width": 96,
+        "blocks": 2,
+        "dropout": 0.2850941073144015,
+        "learningRate": 0.00023373880019026232,
+        "weightDecay": 0.0001376499459815063,
+        "huberDelta": 2.100718233156647,
+        "tailFraction": 0.25,
+        "tailWeight": 0.6424667094556444,
+        "noiseStd": 0.02
+      }
+    },
+    {
+      "index": 10,
+      "score": 3.7483350324630735,
+      "seconds": 69.613,
+      "configuration": {
+        "width": 48,
+        "blocks": 2,
+        "dropout": 0.3077931873867428,
+        "learningRate": 0.000594840731074246,
+        "weightDecay": 4.4448239003460935e-05,
+        "huberDelta": 0.4168619673443007,
+        "tailFraction": 0.25,
+        "tailWeight": 0.5698487886986467,
+        "noiseStd": 0.06
+      }
+    },
+    {
+      "index": 14,
+      "score": 3.758522303104401,
+      "seconds": 74.58,
+      "configuration": {
+        "width": 96,
+        "blocks": 2,
+        "dropout": 0.29010719722807665,
+        "learningRate": 0.0003120342103408737,
+        "weightDecay": 5.273378803528264e-07,
+        "huberDelta": 1.2662689556996916,
+        "tailFraction": 0.15,
+        "tailWeight": 0.48284316565789287,
+        "noiseStd": 0.02
+      }
+    },
+    {
+      "index": 99,
+      "score": 3.7638019943237304,
+      "seconds": 62.656,
+      "configuration": {
+        "width": 96,
+        "blocks": 1,
+        "dropout": 0.27281270487248166,
+        "learningRate": 0.0006723645836706297,
+        "weightDecay": 0.00014160352269857815,
+        "huberDelta": 1.9506828880100673,
+        "tailFraction": 0.3,
+        "tailWeight": 0.7526438435271601,
+        "noiseStd": 0.06
+      }
+    },
+    {
+      "index": 72,
+      "score": 3.7708991003036494,
+      "seconds": 93.979,
+      "configuration": {
+        "width": 64,
+        "blocks": 6,
+        "dropout": 0.16608793251344614,
+        "learningRate": 0.00030078426879113774,
+        "weightDecay": 1.2851741444006707e-06,
+        "huberDelta": 1.6338368262123089,
+        "tailFraction": 0.3,
+        "tailWeight": 0.3601501524287575,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 46,
+      "score": 3.777878241539001,
+      "seconds": 124.176,
+      "configuration": {
+        "width": 32,
+        "blocks": 6,
+        "dropout": 0.38299258917859164,
+        "learningRate": 7.03899993346184e-05,
+        "weightDecay": 0.018449754953891576,
+        "huberDelta": 0.7006018466517592,
+        "tailFraction": 0.3,
+        "tailWeight": 0.5280071667337011,
+        "noiseStd": 0.02
+      }
+    },
+    {
+      "index": 74,
+      "score": 3.778990364074707,
+      "seconds": 71.672,
+      "configuration": {
+        "width": 64,
+        "blocks": 2,
+        "dropout": 0.39191320199293694,
+        "learningRate": 0.0004856972748009492,
+        "weightDecay": 3.262925429487603e-06,
+        "huberDelta": 0.8371484501443064,
+        "tailFraction": 0.25,
+        "tailWeight": 0.27668524331860567,
+        "noiseStd": 0.02
+      }
+    },
+    {
+      "index": 108,
+      "score": 3.7867681264877318,
+      "seconds": 108.435,
+      "configuration": {
+        "width": 24,
+        "blocks": 6,
+        "dropout": 0.3421664424592792,
+        "learningRate": 5.4285261828095005e-05,
+        "weightDecay": 0.0005243142385238307,
+        "huberDelta": 2.5359758723712678,
+        "tailFraction": 0.1,
+        "tailWeight": 0.4365034323441196,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 49,
+      "score": 3.8580283236503603,
+      "seconds": 108.374,
+      "configuration": {
+        "width": 96,
+        "blocks": 6,
+        "dropout": 0.15998746694994778,
+        "learningRate": 0.0001914391929294485,
+        "weightDecay": 3.326463926288579e-07,
+        "huberDelta": 1.052948473967612,
+        "tailFraction": 0.2,
+        "tailWeight": 0.2103019513430154,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 77,
+      "score": 3.8687947797775273,
+      "seconds": 102.213,
+      "configuration": {
+        "width": 64,
+        "blocks": 4,
+        "dropout": 0.21490796372542015,
+        "learningRate": 0.0003842638457857402,
+        "weightDecay": 0.0012759312808961593,
+        "huberDelta": 0.6408933924737922,
+        "tailFraction": 0.3,
+        "tailWeight": 0.8644276249355691,
+        "noiseStd": 0.04
+      }
+    },
+    {
+      "index": 91,
+      "score": 3.900487699508667,
+      "seconds": 113.591,
+      "configuration": {
+        "width": 96,
+        "blocks": 6,
+        "dropout": 0.35902172498893764,
+        "learningRate": 0.00043189432865370814,
+        "weightDecay": 0.00010239984832913608,
+        "huberDelta": 1.4359247574218381,
+        "tailFraction": 0.15,
+        "tailWeight": 0.24934211613200458,
+        "noiseStd": 0.02
+      }
+    },
+    {
+      "index": 76,
+      "score": 4.018719902038574,
+      "seconds": 105.437,
+      "configuration": {
+        "width": 96,
+        "blocks": 6,
+        "dropout": 0.20737811702071354,
+        "learningRate": 0.00036438294006116857,
+        "weightDecay": 0.0043842765290206314,
+        "huberDelta": 0.9141698218624541,
+        "tailFraction": 0.3,
+        "tailWeight": 0.3419155962420616,
+        "noiseStd": 0.12
+      }
+    },
+    {
+      "index": 95,
+      "score": 4.022286427021027,
+      "seconds": 88.402,
+      "configuration": {
+        "width": 96,
+        "blocks": 3,
+        "dropout": 0.1680804925351484,
+        "learningRate": 0.00042595276220545186,
+        "weightDecay": 3.334031670094974e-06,
+        "huberDelta": 0.8174902908938257,
+        "tailFraction": 0.3,
+        "tailWeight": 0.8704792332299086,
+        "noiseStd": 0.02
+      }
+    },
+    {
+      "index": 17,
+      "score": 4.149523460865021,
+      "seconds": 114.823,
+      "configuration": {
+        "width": 64,
+        "blocks": 6,
+        "dropout": 0.1665705773853592,
+        "learningRate": 0.0005211586842468619,
+        "weightDecay": 2.3009130514059383e-06,
+        "huberDelta": 0.8670341619557336,
+        "tailFraction": 0.25,
+        "tailWeight": 0.20150638856449987,
+        "noiseStd": 0.02
+      }
+    }
+  ]
+}

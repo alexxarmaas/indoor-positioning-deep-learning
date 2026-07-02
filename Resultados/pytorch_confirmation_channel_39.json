@@ -1,0 +1,268 @@
+{
+  "dataset": "channel_39",
+  "repeats": 5,
+  "folds": 5,
+  "epochs": 1200,
+  "best": {
+    "candidateIndex": 0,
+    "configuration": {
+      "width": 32,
+      "blocks": 1,
+      "dropout": 0.25053082082618394,
+      "learningRate": 0.00021997754398486223,
+      "weightDecay": 0.0003449229588703824,
+      "huberDelta": 1.591696334214714,
+      "tailFraction": 0.2,
+      "tailWeight": 0.4009137299886948,
+      "noiseStd": 0.12
+    },
+    "completedRepeats": 5,
+    "meanScore": 3.31794401550293,
+    "stdScore": 0.014996619448626378,
+    "worstScore": 3.3327813482284547
+  },
+  "summaries": [
+    {
+      "candidateIndex": 0,
+      "configuration": {
+        "width": 32,
+        "blocks": 1,
+        "dropout": 0.25053082082618394,
+        "learningRate": 0.00021997754398486223,
+        "weightDecay": 0.0003449229588703824,
+        "huberDelta": 1.591696334214714,
+        "tailFraction": 0.2,
+        "tailWeight": 0.4009137299886948,
+        "noiseStd": 0.12
+      },
+      "completedRepeats": 5,
+      "meanScore": 3.31794401550293,
+      "stdScore": 0.014996619448626378,
+      "worstScore": 3.3327813482284547
+    },
+    {
+      "candidateIndex": 1,
+      "configuration": {
+        "width": 48,
+        "blocks": 1,
+        "dropout": 0.22527129480804722,
+        "learningRate": 9.9935782840627e-05,
+        "weightDecay": 4.297807648212869e-06,
+        "huberDelta": 1.2149187305479798,
+        "tailFraction": 0.3,
+        "tailWeight": 0.4030856965723776,
+        "noiseStd": 0.12
+      },
+      "completedRepeats": 5,
+      "meanScore": 3.3162067756652833,
+      "stdScore": 0.03330586608352411,
+      "worstScore": 3.361848275661468
+    },
+    {
+      "candidateIndex": 2,
+      "configuration": {
+        "width": 32,
+        "blocks": 2,
+        "dropout": 0.17826577520645537,
+        "learningRate": 0.00015412787003539128,
+        "weightDecay": 1.6391877112658617e-06,
+        "huberDelta": 1.0107901075412618,
+        "tailFraction": 0.3,
+        "tailWeight": 0.35298687952188934,
+        "noiseStd": 0.12
+      },
+      "completedRepeats": 5,
+      "meanScore": 3.36237348651886,
+      "stdScore": 0.03432387543821778,
+      "worstScore": 3.4221429061889643
+    },
+    {
+      "candidateIndex": 3,
+      "configuration": {
+        "width": 24,
+        "blocks": 2,
+        "dropout": 0.2319006844936986,
+        "learningRate": 0.00047947790015875837,
+        "weightDecay": 3.4375524065049625e-05,
+        "huberDelta": 0.5057284045679049,
+        "tailFraction": 0.25,
+        "tailWeight": 0.4864712901039301,
+        "noiseStd": 0.02
+      },
+      "completedRepeats": 5,
+      "meanScore": 3.51320539188385,
+      "stdScore": 0.08878633646257614,
+      "worstScore": 3.6874937820434575
+    },
+    {
+      "candidateIndex": 4,
+      "configuration": {
+        "width": 32,
+        "blocks": 1,
+        "dropout": 0.2951359818556779,
+        "learningRate": 0.0004613278643704854,
+        "weightDecay": 5.865201403330198e-06,
+        "huberDelta": 1.3550422627297198,
+        "tailFraction": 0.3,
+        "tailWeight": 0.8893655001766989,
+        "noiseStd": 0.12
+      },
+      "completedRepeats": 5,
+      "meanScore": 3.4060293622016906,
+      "stdScore": 0.01978137195100031,
+      "worstScore": 3.426375675201416
+    }
+  ],
+  "runs": [
+    {
+      "candidateIndex": 0,
+      "repeat": 0,
+      "score": 3.3327813482284547,
+      "seconds": 46.27
+    },
+    {
+      "candidateIndex": 0,
+      "repeat": 1,
+      "score": 3.3305024814605715,
+      "seconds": 41.573
+    },
+    {
+      "candidateIndex": 0,
+      "repeat": 2,
+      "score": 3.327004384994507,
+      "seconds": 42.139
+    },
+    {
+      "candidateIndex": 0,
+      "repeat": 3,
+      "score": 3.2998027372360235,
+      "seconds": 51.657
+    },
+    {
+      "candidateIndex": 0,
+      "repeat": 4,
+      "score": 3.299629125595093,
+      "seconds": 52.886
+    },
+    {
+      "candidateIndex": 1,
+      "repeat": 0,
+      "score": 3.361848275661468,
+      "seconds": 59.237
+    },
+    {
+      "candidateIndex": 1,
+      "repeat": 1,
+      "score": 3.309049460887909,
+      "seconds": 56.969
+    },
+    {
+      "candidateIndex": 1,
+      "repeat": 2,
+      "score": 3.3398853802680977,
+      "seconds": 55.747
+    },
+    {
+      "candidateIndex": 1,
+      "repeat": 3,
+      "score": 3.3065642166137694,
+      "seconds": 53.56
+    },
+    {
+      "candidateIndex": 1,
+      "repeat": 4,
+      "score": 3.2636865448951724,
+      "seconds": 54.823
+    },
+    {
+      "candidateIndex": 2,
+      "repeat": 0,
+      "score": 3.325338263511658,
+      "seconds": 64.217
+    },
+    {
+      "candidateIndex": 2,
+      "repeat": 1,
+      "score": 3.4221429061889643,
+      "seconds": 66.584
+    },
+    {
+      "candidateIndex": 2,
+      "repeat": 2,
+      "score": 3.34704354763031,
+      "seconds": 65.697
+    },
+    {
+      "candidateIndex": 2,
+      "repeat": 3,
+      "score": 3.3771677398681645,
+      "seconds": 62.542
+    },
+    {
+      "candidateIndex": 2,
+      "repeat": 4,
+      "score": 3.3401749753952026,
+      "seconds": 64.712
+    },
+    {
+      "candidateIndex": 3,
+      "repeat": 0,
+      "score": 3.6874937820434575,
+      "seconds": 74.636
+    },
+    {
+      "candidateIndex": 3,
+      "repeat": 1,
+      "score": 3.439125645160675,
+      "seconds": 70.006
+    },
+    {
+      "candidateIndex": 3,
+      "repeat": 2,
+      "score": 3.4770715188980104,
+      "seconds": 70.811
+    },
+    {
+      "candidateIndex": 3,
+      "repeat": 3,
+      "score": 3.4909754276275633,
+      "seconds": 75.134
+    },
+    {
+      "candidateIndex": 3,
+      "repeat": 4,
+      "score": 3.4713605856895446,
+      "seconds": 84.043
+    },
+    {
+      "candidateIndex": 4,
+      "repeat": 0,
+      "score": 3.404659850597382,
+      "seconds": 61.259
+    },
+    {
+      "candidateIndex": 4,
+      "repeat": 1,
+      "score": 3.3689341831207273,
+      "seconds": 53.854
+    },
+    {
+      "candidateIndex": 4,
+      "repeat": 2,
+      "score": 3.426375675201416,
+      "seconds": 45.173
+    },
+    {
+      "candidateIndex": 4,
+      "repeat": 3,
+      "score": 3.414601082801819,
+      "seconds": 54.318
+    },
+    {
+      "candidateIndex": 4,
+      "repeat": 4,
+      "score": 3.41557601928711,
+      "seconds": 51.327
+    }
+  ]
+}

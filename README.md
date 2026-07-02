@@ -79,6 +79,43 @@ Version control and repository hosting used to maintain code integrity, track ch
 
 ---
 
+## Deep Learning positioning
+
+The DeepLearning method is an ensemble of multilayer perceptrons for RSSI fingerprint regression. It uses the same source signals, aleatory evaluation points, prediction storage, and 3D Euclidean error metric as WKNN.
+
+- Training data: one fingerprint per reference capture whose rotation matches the aleatory evaluation, plus a strongest-signal aggregate repeated six times to balance daily variation with the evaluation distribution.
+- Hidden layers: 64 and 32 neurons with Tanh activation.
+- Optimizer: Adam with early stopping for full campaigns; L-BFGS remains the fallback for very small datasets.
+- Preprocessing: missing RSSI values become `-110 dBm`; inputs and target coordinates are standardized independently.
+- Reproducibility: deterministic seed 45 and L2 regularization alpha 0.01.
+- Dependencies: no new package is required; the implementation uses scikit-learn already listed in `IPSCM/requirements.txt`.
+
+On the aggregated application campaign, using iBeacon, channel 37, unlimited samples, and the configured 0-degree aleatory captures, the model obtained 1.705 m mean error, 1.354 m median, and 2.738 m P90. The best WKNN result across k=1..20 was 2.025 m, 1.543 m, and 2.962 m respectively (k=11, Manhattan distance). Deep Learning reduced these three errors by 15.8%, 12.2%, and 7.6%. This is a campaign-specific benchmark rather than a guarantee for every protocol/channel combination.
+
+The SQLite files in `Campañas/` are source datasets and are not discovered automatically at startup. A single import now accepts one aleatory database followed by any number of reference databases. The reference databases are normalized to the common point map from the `.conf` file and stored in one visible campaign, so measurements from every collection day contribute to the same fingerprint. Upload the files in this order:
+
+1. Aleatory SQLite database.
+2. All reference SQLite databases, in acquisition order.
+3. General BLE configuration, aleatory point configuration, and reference point configuration.
+
+The campaign database is stored in the `ipscm-data` Docker volume and therefore survives container rebuilds. Choose **Sin límite** in the sample selector when every RSSI sample from every imported day must be considered.
+
+To run the application and compare both methods:
+
+```bash
+docker compose up --build
+```
+
+Open `http://localhost:4200`, apply `DeepLearning` and `WKNN` with the same protocol, channel, and RSSI sample limit, then use **Generar gráficas** on the aggregated campaign. Both results are stored in `Method_Prediction`. The precision view plots error CDFs and the accuracy view plots predicted positions; both views also show mean, median, P90, and maximum-error tables.
+
+Run the backend method tests with:
+
+```bash
+docker compose build server
+docker compose run --rm server python -m unittest discover -s tests -v
+```
+
+---
 ## 👤 Author
 
 **Simon Rusu**  

@@ -22,7 +22,7 @@
                   </mat-option>
                 </mat-select>
               </mat-form-field>
-              <mat-form-field class="formField mr-2">
+              <mat-form-field *ngIf="selectedMethod !== 'DeepLearningHybrid'" class="formField mr-2">
                 <mat-label>Canal</mat-label>
                 <mat-select placeholder="Sin selección" multiple formControlName="channels">
                   <mat-option class="mat-option" value="allMethods" (click)="selectAllChannels()">Seleccionar todos</mat-option>
@@ -159,6 +159,31 @@
             <div class="box chart-container">
               <canvas baseChart class="chart is-fullwidth" [data]="lineChartData" [options]="lineChartOptions" [type]="lineChartType"></canvas>
             </div>
+            <div class='box metrics-summary' *ngIf='precisionSummary.length > 0'>
+              <h3 class='title is-5'>Resumen del error 3D</h3>
+              <div class='table-container'>
+                <table class='table is-striped is-hoverable is-fullwidth'>
+                  <thead>
+                    <tr>
+                      <th>Serie</th>
+                      <th>Media</th>
+                      <th>Mediana</th>
+                      <th>P90</th>
+                      <th>Máximo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor='let summary of precisionSummary'>
+                      <td class='series-name'>{{ summary.label }}</td>
+                      <td>{{ summary.mean | number:'1.2-2' }} m</td>
+                      <td>{{ summary.median | number:'1.2-2' }} m</td>
+                      <td>{{ summary.p90 | number:'1.2-2' }} m</td>
+                      <td>{{ summary.maximum | number:'1.2-2' }} m</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -187,7 +212,7 @@
                   </mat-option>
                 </mat-select>
               </mat-form-field>
-              <mat-form-field class="formField mr-2">
+              <mat-form-field *ngIf="selectedMethod !== 'DeepLearningHybrid'" class="formField mr-2">
                 <mat-label>Canal</mat-label>
                 <mat-select placeholder="Sin selección" multiple formControlName="channels">
                   <mat-option class="mat-option" value="allMethods" (click)="selectAllChannels()">Seleccionar todos</mat-option>

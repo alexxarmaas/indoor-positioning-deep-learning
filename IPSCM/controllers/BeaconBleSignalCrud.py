@@ -4,33 +4,67 @@ from models.BeaconBleSignal import BeaconBleSignal, BeaconBleSignalAux
 from models.Capture import Capture
 from config import db
 
-def createBeaconBleSignal():
+
+def createBeaconBleSignal(captureIdMapping):
     db.create_all()
-    beaconBleSignalAux = BeaconBleSignalAux.query.all()
-    captureIndex = Capture.query.count()
+    beaconBleSignalAux = BeaconBleSignalAux.query.order_by(BeaconBleSignalAux.Id.asc()).yield_per(5000)
+    signalBatch = []
 
     for i in beaconBleSignalAux:
-        beaconBleSignal = BeaconBleSignal()
-        beaconBleSignal.Id_capture = i.Id_capture + captureIndex
-        beaconBleSignal.N_reading = i.N_reading
-        beaconBleSignal.Date_hour = i.Date_hour
-        beaconBleSignal.Mac = i.Mac
-        beaconBleSignal.Pack_size = i.Pack_size
-        beaconBleSignal.Channel = i.Channel
-        beaconBleSignal.RSSI = i.RSSI
-        beaconBleSignal.PDU_type = i.PDU_type
-        beaconBleSignal.CRC = i.CRC
-        beaconBleSignal.Protocol = i.Protocol
-        beaconBleSignal.Identificator = i.Identificator
-        db.session.add(beaconBleSignal)
+        targetCaptureId = captureIdMapping.get(i.Id_capture)
+        if targetCaptureId is None:
+            raise ValueError(f'Signal {i.Id} references unknown capture {i.Id_capture}')
+
+        signalBatch.append({
+            'Id_capture': targetCaptureId,
+            'N_reading': i.N_reading,
+            'Date_hour': i.Date_hour,
+            'Mac': i.Mac,
+            'Pack_size': i.Pack_size,
+            'Channel': i.Channel,
+            'RSSI': i.RSSI,
+            'PDU_type': i.PDU_type,
+            'CRC': i.CRC,
+            'Protocol': i.Protocol,
+            'Identificator': i.Identificator
+        })
+
+        if len(signalBatch) == 5000:
+            db.session.bulk_insert_mappings(BeaconBleSignal, signalBatch)
+            signalBatch.clear()
+
+    if signalBatch:
+        db.session.bulk_insert_mappings(BeaconBleSignal, signalBatch)
     
     db.session.commit()
     db.session.remove()
 
 
-def getBeaconBleSignalByCampaignId(campaignId:int):
-    captureIds = getCaptureIdsByCampaignId(campaignId)
-    return jsonify([signal.serialize() for signal in BeaconBleSignal.query.filter(BeaconBleSignal.Id_capture.in_(captureIds))])
+def getBeaconBleSignalByCampaignId(campaignId: int, page=None, pageSize=None):
+    query = (
+        BeaconBleSignal.query
+        .join(Capture, BeaconBleSignal.Id_capture == Capture.Id)
+        .filter(Capture.Id_campaign == campaignId)
+    )
+
+    if page is None or pageSize is None:
+        return jsonify([signal.serialize() for signal in query.all()])
+
+    page = max(page, 0)
+    pageSize = min(max(pageSize, 1), 100)
+    total = query.count()
+    signals = (
+        query.order_by(BeaconBleSignal.Id.asc())
+        .offset(page * pageSize)
+        .limit(pageSize)
+        .all()
+    )
+    return jsonify({
+        'items': [signal.serialize() for signal in signals],
+        'total': total,
+        'page': page,
+        'pageSize': pageSize
+    })
 
 def getBeaconBleSignalIdentificatorByCampaignId(campaignId:int):
     captureIds = getCaptureIdsByCampaignId(campaignId)
@@ -52,6 +86,11 @@ def getBeaconBleSignalById(id):
 
 def getBeaconBleSignalsByCaptureIds(captureIds):
     return BeaconBleSignal.query.filter(BeaconBleSignal.Id_capture.in_(captureIds)).all()
+
+
+def countBeaconBleSignalsByCaptureIds(captureIds):
+    return BeaconBleSignal.query.filter(BeaconBleSignal.Id_capture.in_(captureIds)).count()
+
 
 def getMacsByCampaignId(campaignId):
     captureIds = getCaptureIdsByCampaignId(campaignId)

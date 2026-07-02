@@ -1,4 +1,4 @@
-from flask import request
+from flask import current_app, request
 from flask_restful import Resource
 from controllers.CampaignCrud import *
 from controllers.BeaconBleSignalCrud import getBeaconBleSignalByCampaignId
@@ -11,6 +11,16 @@ from controllers.TaskHistoryCrud import getTaskHistory
 from services.DataProcessService import dataProcessing
 from services.UploadService import uploadCampaign
 from services.ImageService import generateZipImages
+from services.ImportProgressService import completeImport, failImport, getImportProgress, releaseImport, startImport
+
+def _getPaginationArguments():
+    page = request.args.get('page', type=int)
+    pageSize = request.args.get('pageSize', type=int)
+
+    if page is None and pageSize is None:
+        return None, None
+
+    return page or 0, pageSize or 10
 
 class ServerStatus(Resource):
     def get(self):
@@ -19,6 +29,11 @@ class ServerStatus(Resource):
 class GetCampaigns(Resource):
     def get(self):
         return getCampaigns()
+
+
+class GetImportProgress(Resource):
+    def get(self):
+        return getImportProgress()
     
 class GetTaskHistory(Resource):
     def get(self):
@@ -42,11 +57,13 @@ class GetCampaignSequence(Resource):
     
 class GetCapturesByCampaignId(Resource):
     def get(self, campaignId):
-        return getCapturesByCampaignId(campaignId)
+        page, pageSize = _getPaginationArguments()
+        return getCapturesByCampaignId(campaignId, page, pageSize)
     
 class GetBeaconBleSignalByCampaignId(Resource):
     def get(self, campaignId):
-        return getBeaconBleSignalByCampaignId(campaignId)
+        page, pageSize = _getPaginationArguments()
+        return getBeaconBleSignalByCampaignId(campaignId, page, pageSize)
 
 class GetBeaconConfigurationByCampaignId(Resource):
     def get(self, campaignId):
@@ -76,10 +93,32 @@ class UploadCampaign(Resource):
             images = request.files.getlist('images')
             imagesRef = generateZipImages(images)
         
-        files = request.files.getlist('files')
+        aleatoryFile = request.files.get('aleatoryFile')
+        referenceFiles = request.files.getlist('referenceFiles')
         confs = request.files.getlist('confs')
 
-        return uploadCampaign(name, date, description, imagesRef, files, confs)
+        if aleatoryFile is None or not referenceFiles:
+            return {'message': 'Carga una base aleatoria y al menos una de referencia'}, 400
+
+        if not startImport(1 + len(referenceFiles)):
+            return {
+                'message': 'Ya hay otra importacion en curso',
+                'progress': getImportProgress()
+            }, 409
+
+        try:
+            result = uploadCampaign(
+                name, date, description, imagesRef,
+                aleatoryFile, referenceFiles, confs
+            )
+            completeImport('Campana importada correctamente')
+            return result, 201
+        except Exception:
+            current_app.logger.exception('Campaign import failed')
+            failImport('La importacion ha fallado. Revisa los logs del servidor.')
+            return {'message': 'La importacion ha fallado'}, 500
+        finally:
+            releaseImport()
     
 class DeteteCampaignById(Resource):
     def delete(self, campaignId):

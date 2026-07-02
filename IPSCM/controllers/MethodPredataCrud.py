@@ -4,7 +4,7 @@ from config import db
 from models.MethodPredata import MethodPredata
 
 def createMethodPredataBatch(batchData):
-    db.create_all()
+    db.create_all(bind_key=None)
 
     methodPredata_objects = [
         MethodPredata(
@@ -29,7 +29,7 @@ def createMethodPredataBatch(batchData):
 
 def getFilteredPredataSamples(campaignId, rssiSamples, dongle_rotation, mac, protocol, channel, positionX, positionY, positionZ):
 
-    query = MethodPredata.query.order_by(MethodPredata.Date.asc())
+    query = MethodPredata.query.order_by(MethodPredata.Date.asc(), MethodPredata.Id.asc())
 
     query = query.filter(MethodPredata.Id_campaign == campaignId)
     query = query.filter(MethodPredata.Dongle_rotation == dongle_rotation)
@@ -52,12 +52,19 @@ def getUniqueCoordinatesByCampaignId(campaignId, limit):
     unique_coordinates = db.session.query(
         MethodPredata.Position_x,
         MethodPredata.Position_y,
+        MethodPredata.Position_z,
+        func.min(MethodPredata.Id).label('first_id')
+    ).filter(
+        MethodPredata.Id_campaign == campaignId
+    ).group_by(
+        MethodPredata.Position_x,
+        MethodPredata.Position_y,
         MethodPredata.Position_z
-    ).filter(MethodPredata.Id_campaign == campaignId).distinct().limit(limit).all()
+    ).order_by(func.min(MethodPredata.Id)).limit(limit).all()
 
     unique_coordinates = [
         {'x': x, 'y': y, 'z': z}
-        for x, y, z in unique_coordinates
+        for x, y, z, _ in unique_coordinates
     ]
 
     return unique_coordinates

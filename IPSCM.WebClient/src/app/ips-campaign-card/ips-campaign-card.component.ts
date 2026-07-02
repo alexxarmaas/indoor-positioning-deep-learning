@@ -1,8 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnDestroy } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import JSZip from 'jszip';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { catchError, of, tap } from 'rxjs';
+import { Subscription, catchError, finalize, of, switchMap, tap, timer } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 
@@ -13,10 +13,10 @@ import { Router } from '@angular/router';
 })
 
 
-export class IpsCampaignCardComponent {
+export class IpsCampaignCardComponent implements OnDestroy {
   @Input() campaign!: any;
   campaignImages: string[] = [];
-  methods: string[] = ["WKNN", "SVR", "NuSVR", "LinearSVR"];
+  methods: string[] = ["WKNN", "DeepLearning", "SVR", "NuSVR", "LinearSVR"];
   protocols: string[] = ["Eddystone", "iBeacon"];
   channels: string[] = ["37", "38", "39"];
   samples = Array.from({length: 20}, (_, index) => index + 1);
@@ -35,6 +35,9 @@ export class IpsCampaignCardComponent {
   LinearSVRparams: boolean = false;
   SVRgammaRange: boolean = false;
   NuSVRgammaRange: boolean = false;
+  isProcessing = false;
+  processingStatusMessage = '';
+  private methodProgressSubscription?: Subscription;
 
 
   selectedMethod: any;
@@ -45,6 +48,7 @@ export class IpsCampaignCardComponent {
     private apiService: ApiService, private formBuilder: FormBuilder, private toastr: ToastrService, private router: Router){}
   
     ngOnInit(){
+      this.methods.splice(2, 0, 'DeepLearningPyTorch', 'DeepLearningHybrid');
       this.apiService.getCampaignImagesById(this.campaign.Id).subscribe((response: Blob) => {
         if(response != null){
         const zipImages = new JSZip();
@@ -190,6 +194,21 @@ export class IpsCampaignCardComponent {
             this.form.get('gamma')?.setValidators(null);
             this.form.get('kernels')?.setValidators(null);
             break;
+          case "DeepLearning":
+          case 'DeepLearningPyTorch':
+          case 'DeepLearningHybrid':
+            if (this.selectedMethod === 'DeepLearningHybrid') {
+              this.form.get('channels')?.setValue(this.channels);
+            }
+            this.form.get('algorithms')?.setValidators(null);
+            this.form.get('metrics')?.setValidators(null);
+            this.form.get('cStep')?.setValidators(null);
+            this.form.get('nuStep')?.setValidators(null);
+            this.form.get('iStep')?.setValidators(null);
+            this.form.get('gStep')?.setValidators(null);
+            this.form.get('gamma')?.setValidators(null);
+            this.form.get('kernels')?.setValidators(null);
+            break;
           case "SVR":
             this.SVRparams = true;
             this.form.get('algorithms')?.setValidators(null);
@@ -264,6 +283,10 @@ export class IpsCampaignCardComponent {
     }
 
     applyMethodBtn(){
+      if (this.isProcessing) {
+        return;
+      }
+
       let formData = new FormData();
       let campaignId = this.campaign.Id;
       let campaignName = this.campaign.Name;
@@ -395,19 +418,61 @@ export class IpsCampaignCardComponent {
 
       formData.append('params', JSON.stringify(dataPackage));
       
+      this.isProcessing = true;
+      this.processingStatusMessage = 'Preparando el procesamiento...';
+      this.startMethodProgressPolling(campaignId);
       this.toastr.clear();
-      this.toastr.warning('Conectando con el servidor...', 'Operación en curso', { timeOut: 2000 });
+      this.toastr.warning('El método se está procesando.', 'Operación en curso', { disableTimeOut: true });
 
       this.apiService.applyMethod(formData).pipe(
-        catchError(error => {
-          setTimeout(() => {
+        tap(response => {
+          if (response !== null) {
             this.toastr.clear();
-            this.toastr.error('Ocurrió un error durante la aplicación del método', 'Operación no completada', { timeOut: 2000 });
-          }, 0);
+            if (response.failedTasks > 0) {
+              this.processingStatusMessage = `Procesamiento terminado con ${response.failedTasks} errores`;
+              this.toastr.error(this.processingStatusMessage, 'Operación no completada', { timeOut: 5000 });
+            } else {
+              this.processingStatusMessage = response.skippedTasks > 0
+                ? 'El resultado ya existía; no se ha repetido'
+                : 'Procesamiento completado';
+              this.toastr.success(this.processingStatusMessage, 'Operación completada', { timeOut: 3000 });
+            }
+          }
+        }),
+        catchError(error => {
+          this.processingStatusMessage = 'El procesamiento ha terminado con error';
+          this.toastr.clear();
+          this.toastr.error('Ocurrió un error durante la aplicación del método', 'Operación no completada', { timeOut: 5000 });
           return of(null);
+        }),
+        finalize(() => {
+          this.isProcessing = false;
+          this.methodProgressSubscription?.unsubscribe();
         })
       ).subscribe();
   
+    }
+
+    private startMethodProgressPolling(campaignId: number): void {
+      this.methodProgressSubscription?.unsubscribe();
+      this.methodProgressSubscription = timer(0, 1000).pipe(
+        switchMap(() => this.apiService.getTaskHistory())
+      ).subscribe({
+        next: (tasks: any) => {
+          const activeTasks = (tasks || [])
+            .filter((task: any) => task.Id_campaign === campaignId && !task.Datetime_end)
+            .sort((first: any, second: any) => second.Id - first.Id);
+
+          if (activeTasks.length > 0) {
+            this.processingStatusMessage = activeTasks[0].Status;
+          }
+        },
+        error: () => {}
+      });
+    }
+
+    ngOnDestroy(): void {
+      this.methodProgressSubscription?.unsubscribe();
     }
 
     fillParamValues(start:any, end:any, step:any){

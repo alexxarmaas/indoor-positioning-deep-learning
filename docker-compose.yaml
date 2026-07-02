@@ -1,13 +1,18 @@
-version: '1'
 name: ipscm
 services:
     server:
       image: simonrusu97/ipscmback
+      gpus: all
+      environment:
+        CUBLAS_WORKSPACE_CONFIG: ':4096:8'
       build: 
         context: ./IPSCM
         dockerfile: Dockerfile
       ports:
         - "5000:5000"
+      volumes:
+        - ipscm-data:/app/db
+        - ./Resultados:/app/Resultados
 
     client:
       image: simonrusu97/ipscmfront
@@ -16,3 +21,6 @@ services:
         dockerfile: Dockerfile
       ports:
         - "4200:80"
+
+volumes:
+  ipscm-data:

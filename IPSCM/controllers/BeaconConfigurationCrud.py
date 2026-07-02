@@ -32,9 +32,10 @@ def createBeaconConfiguration(campaignId, beaconConfName):
                 beaconConfiguration.Update_frequency = i.Update_frequency
                 beaconConfiguration.Identificator = i.Identificator
                 db.session.add(beaconConfiguration)
+                db.session.flush()
 
                 if i.Mac in usedBeacons:
-                    beaconConfId = getLastInsertedBeaconConfigurationId()
+                    beaconConfId = beaconConfiguration.Id
                     createCampaignConfigurations(campaignId, beaconConfId, beaconConfName)
 
     db.session.commit()
@@ -57,4 +58,3 @@ def getIdByMacPowerFrequency(mac, power, frequency):
 
 def getLastInsertedBeaconConfigurationId():
     return BeaconConfiguration.query.order_by(BeaconConfiguration.Id.desc()).first().Id
-                               

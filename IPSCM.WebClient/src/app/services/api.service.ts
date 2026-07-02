@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { EMPTY, Observable, Subject, catchError, of, switchMap, takeUntil, throwError, timer } from 'rxjs';
 import { Router } from '@angular/router';
 
@@ -23,6 +23,10 @@ export class ApiService {
 
   getTaskHistory(){
     return this.http.get(this.baseUrl + "taskHistory");
+  }
+
+  getImportProgress(){
+    return this.http.get(this.baseUrl + "importProgress");
   }
 
   pollTaskHistory(): Observable<any> {
@@ -62,12 +66,26 @@ export class ApiService {
     return this.http.get(this.baseUrl + `campaignSequence/${id}`);
   }
 
-  getCaptures(id: any){
-    return this.http.get(this.baseUrl + `capturesByCampaign/${id}`);
+  getCaptures(id: any, page?: number, pageSize?: number){
+    return this.http.get(this.baseUrl + `capturesByCampaign/${id}`, {
+      params: this.paginationParams(page, pageSize)
+    });
   }
 
-  getSignals(id: any){
-    return this.http.get(this.baseUrl + `signalsByCampaign/${id}`);
+  getSignals(id: any, page?: number, pageSize?: number){
+    return this.http.get(this.baseUrl + `signalsByCampaign/${id}`, {
+      params: this.paginationParams(page, pageSize)
+    });
+  }
+
+  private paginationParams(page?: number, pageSize?: number): HttpParams {
+    let params = new HttpParams();
+    if (page !== undefined && pageSize !== undefined) {
+      params = params
+        .set('page', page.toString())
+        .set('pageSize', pageSize.toString());
+    }
+    return params;
   }
 
   getConfigs(id: any){

@@ -1,0 +1,58 @@
+{
+  "campaignId": 2,
+  "protocol": "iBeacon",
+  "channel": 37,
+  "rssiSamples": 20,
+  "folds": 2,
+  "epochs": 80,
+  "best": {
+    "index": 1,
+    "score": 3.6588637053966524,
+    "seconds": 2.245,
+    "configuration": {
+      "width": 32,
+      "blocks": 4,
+      "dropout": 0.11361162290593473,
+      "learningRate": 0.00019415549041326282,
+      "weightDecay": 0.001493855213388447,
+      "huberDelta": 1.7618177170449552,
+      "tailFraction": 0.1,
+      "tailWeight": 0.5156981475924078,
+      "noiseStd": 0.0
+    }
+  },
+  "trials": [
+    {
+      "index": 1,
+      "score": 3.6588637053966524,
+      "seconds": 2.245,
+      "configuration": {
+        "width": 32,
+        "blocks": 4,
+        "dropout": 0.11361162290593473,
+        "learningRate": 0.00019415549041326282,
+        "weightDecay": 0.001493855213388447,
+        "huberDelta": 1.7618177170449552,
+        "tailFraction": 0.1,
+        "tailWeight": 0.5156981475924078,
+        "noiseStd": 0.0
+      }
+    },
+    {
+      "index": 0,
+      "score": 4.010358065366745,
+      "seconds": 4.86,
+      "configuration": {
+        "width": 256,
+        "blocks": 5,
+        "dropout": 0.0967504603436015,
+        "learningRate": 0.0006396595975219279,
+        "weightDecay": 0.009812632376457612,
+        "huberDelta": 1.4563044994377041,
+        "tailFraction": 0.3,
+        "tailWeight": 0.3710642854440237,
+        "noiseStd": 0.04
+      }
+    }
+  ]
+}

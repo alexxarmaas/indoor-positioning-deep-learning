@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ApiService } from '../services/api.service';
 import { Router } from '@angular/router';
-import { catchError, of, tap } from 'rxjs';
+import { Subscription, catchError, finalize, of, switchMap, tap, timer } from 'rxjs';
 
 
 
@@ -12,7 +12,7 @@ import { catchError, of, tap } from 'rxjs';
   templateUrl: './upload-campaign.component.html',
   styleUrls: ['./upload-campaign.component.sass']
 })
-export class UploadCampaignComponent {
+export class UploadCampaignComponent implements OnDestroy {
 
   uploadForm: FormGroup;
 
@@ -29,21 +29,27 @@ export class UploadCampaignComponent {
     });
   }
   
-  firstSelectedFile: File | null = null;
-  secondSelectedFile: File | null = null;
+  selectedAleatoryFile: File | null = null;
+  selectedReferenceFiles: File[] = [];
   selectedConfFiles: File[] = [];
   selectedImages: File[] = [];
-  firstFileUploaded = false;
-  secondFileUploaded = false;
+  aleatoryFileUploaded = false;
+  referenceFilesUploaded = false;
   imageUploaded = false;
   confUploaded = false;
   allConfsUploaded = false;
-  fileNames: string[] = [];
+  aleatoryFileName = '';
+  referenceFileNames: string[] = [];
   imageNames: string[] = [];
   confNames: string[] = [];
-  isDraggingFile = false;
+  isDraggingAleatoryFile = false;
+  isDraggingReferenceFiles = false;
   isDraggingImage = false;
   isDraggingConf = false;
+  isUploading = false;
+  importProgress = 0;
+  importStatusMessage = '';
+  private importProgressSubscription?: Subscription;
   fileAllowedExtensions = /(\.sqlite3)$/i;
   imageAllowedExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
   confAllowedExtensions = /(\.conf)$/i;
@@ -55,9 +61,8 @@ export class UploadCampaignComponent {
     if(type == 'image'){
       this.isDraggingImage = true;
     }
-    else if(type == 'file'){
-      this.isDraggingFile = true;
-    }
+    else if(type == 'aleatoryFile') this.isDraggingAleatoryFile = true;
+    else if(type == 'referenceFiles') this.isDraggingReferenceFiles = true;
     else this.isDraggingConf = true;
   }
 
@@ -68,9 +73,8 @@ export class UploadCampaignComponent {
     if(type == 'image'){
       this.isDraggingImage = false;
     }
-    else if(type == 'file'){
-      this.isDraggingFile = false;
-    }
+    else if(type == 'aleatoryFile') this.isDraggingAleatoryFile = false;
+    else if(type == 'referenceFiles') this.isDraggingReferenceFiles = false;
     else this.isDraggingConf = false;
   }
 
@@ -98,71 +102,45 @@ export class UploadCampaignComponent {
           this.imageNames?.push(file.name);
         }
       }
-    } else if(type == 'file'){
-      this.isDraggingFile = false;
-      if (files.length === 1) {
-        var checkFile = files[0];
-       
+    } else if(type == 'aleatoryFile'){
+      this.isDraggingAleatoryFile = false;
+      const newFiles = Array.from(files) as File[];
 
-        if (checkFile && !this.fileAllowedExtensions.exec(checkFile.name)) {
-          this.toastr.error('El archivo no posee un formato válido (SQLITE3)', 'Error de formato');
-          return
-        } 
-        else {
-          if (this.secondSelectedFile != null)
-            this.firstSelectedFile = this.secondSelectedFile;
-
-          this.secondSelectedFile = checkFile;
-
-          if (this.secondSelectedFile?.name) {
-
-            if(this.fileNames[0] == null){
-
-              this.firstFileUploaded = true;
-              this.fileNames[0] = this.secondSelectedFile?.name
-            }
-            else{
-              this.secondFileUploaded = true;
-              if(this.firstSelectedFile){
-                this.fileNames[0] = this.firstSelectedFile?.name;
-                this.fileNames[1] = this.secondSelectedFile?.name;
-              }
-            }
-          }
-        }
-      }
-      else if(files.length == 2){
-        var checkFile = files[0];
-        var checkFile2 = files[1];
-
-        if (checkFile && !this.fileAllowedExtensions.exec(checkFile.name)) {
-          this.toastr.error('El archivo no posee un formato válido (SQLITE3)', 'Error de formato');
-          return;
-        }
-        else{
-          this.firstSelectedFile = checkFile;
-          this.firstFileUploaded = true;
-          if (this.firstSelectedFile?.name) {
-            this.fileNames[0] = this.firstSelectedFile?.name;
-          }
-        }
-
-        if (checkFile2 && !this.fileAllowedExtensions.exec(checkFile2.name)) {
-          this.toastr.error('El archivo no posee un formato válido (SQLITE3)', 'Error de formato');
-          return;
-        }
-        else{
-          this.secondSelectedFile = checkFile2;
-          this.secondFileUploaded = true;
-          if (this.secondSelectedFile?.name) {
-            this.fileNames[1] = this.secondSelectedFile?.name;
-          }
-
-        }
-      }
-      else
-        this.toastr.error('Solo se permiten cargar dos ficheros de forma simultánea', 'Limite de ficheros excedido');
+      if (newFiles.length !== 1 || !this.fileAllowedExtensions.test(newFiles[0].name)) {
+        this.toastr.error('El archivo no posee un formato válido (SQLITE3)', 'Error de formato');
         return;
+      }
+
+      this.selectedAleatoryFile = newFiles[0];
+      this.aleatoryFileName = newFiles[0].name;
+      this.aleatoryFileUploaded = true;
+      return;
+    } else if(type == 'referenceFiles'){
+      this.isDraggingReferenceFiles = false;
+      const newFiles = Array.from(files) as File[];
+
+      if (newFiles.some(file => !this.fileAllowedExtensions.test(file.name))) {
+        this.toastr.error('El archivo no posee un formato válido (SQLITE3)', 'Error de formato');
+        return;
+      }
+
+      const selectedFiles = new Set(
+        this.selectedReferenceFiles.map(file => `${file.name}:${file.size}:${file.lastModified}`)
+      );
+
+      for (const file of newFiles) {
+        const fileKey = `${file.name}:${file.size}:${file.lastModified}`;
+        if (!selectedFiles.has(fileKey)) {
+          this.selectedReferenceFiles.push(file);
+          selectedFiles.add(fileKey);
+        }
+      }
+
+      this.referenceFilesUploaded = this.selectedReferenceFiles.length > 0;
+      this.referenceFileNames = this.selectedReferenceFiles.map((file, index) =>
+        `Referencia ${index + 1}: ${file.name}`
+      );
+      return;
     }
     else{
       this.isDraggingConf = false;
@@ -193,7 +171,23 @@ export class UploadCampaignComponent {
     }
   }
 
+  clearAleatoryFile(): void {
+    this.selectedAleatoryFile = null;
+    this.aleatoryFileName = '';
+    this.aleatoryFileUploaded = false;
+  }
+
+  clearReferenceFiles(): void {
+    this.selectedReferenceFiles = [];
+    this.referenceFileNames = [];
+    this.referenceFilesUploaded = false;
+  }
+
   uploadCampaign(): void {
+    if (this.isUploading) {
+      return;
+    }
+
     const formData = new FormData();
 
     formData.append('name', this.uploadForm.get('name')?.value);
@@ -206,10 +200,12 @@ export class UploadCampaignComponent {
       }
     }
     
-    if (this.firstSelectedFile && this.secondSelectedFile) {
- 
-      formData.append('files', this.firstSelectedFile);
-      formData.append('files', this.secondSelectedFile);
+    if (this.selectedAleatoryFile) {
+      formData.append('aleatoryFile', this.selectedAleatoryFile);
+    }
+
+    for (const referenceFile of this.selectedReferenceFiles) {
+      formData.append('referenceFiles', referenceFile);
     }
 
     if (this.selectedConfFiles){
@@ -217,26 +213,53 @@ export class UploadCampaignComponent {
         formData.append('confs', this.selectedConfFiles[i]);
       }
     }
-    this.router.navigate(['/campaigns']);
-    this.toastr.warning('Conectando con el servidor...', 'Operación en curso');
+    this.isUploading = true;
+    this.importProgress = 0;
+    this.importStatusMessage = 'Subiendo archivos al servidor...';
+    this.startImportProgressPolling();
+    this.toastr.warning('La importación puede tardar varios minutos.', 'Operación en curso', { disableTimeOut: true });
+
     this.apiService.uploadCampaign(formData).pipe(
       tap(response => {
-        setTimeout(() => {
-          this.toastr.clear();
-          this.toastr.success('¡La campaña se ha guardado correctamente!', 'Operación completada', { timeOut: 2000 });
-          this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-            this.router.navigate(['/campaigns'])
-          });
-        }, 0);
+        this.importProgress = 100;
+        this.importStatusMessage = 'Campaña importada correctamente';
+        this.toastr.clear();
+        this.toastr.success('¡La campaña se ha guardado correctamente!', 'Operación completada', { timeOut: 3000 });
+        this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+          this.router.navigate(['/campaigns']);
+        });
       }),
       catchError(error => {
-        setTimeout(() => {
-          this.toastr.clear();
-          this.toastr.error('Ocurrió un error al cargar la campaña', 'Operación no completada', { timeOut: 2000 });
-        }, 0);
+        this.importStatusMessage = error.status === 409
+          ? 'Ya hay otra importación en curso'
+          : 'Ocurrió un error durante la importación';
+        this.toastr.clear();
+        this.toastr.error(this.importStatusMessage, 'Operación no completada', { timeOut: 5000 });
         return of(null);
+      }),
+      finalize(() => {
+        this.isUploading = false;
+        this.importProgressSubscription?.unsubscribe();
       })
     ).subscribe();
-    
+  }
+
+  private startImportProgressPolling(): void {
+    this.importProgressSubscription?.unsubscribe();
+    this.importProgressSubscription = timer(0, 750).pipe(
+      switchMap(() => this.apiService.getImportProgress())
+    ).subscribe({
+      next: (progress: any) => {
+        if (progress.state === 'running') {
+          this.importProgress = progress.percentage ?? this.importProgress;
+          this.importStatusMessage = progress.message ?? this.importStatusMessage;
+        }
+      },
+      error: () => {}
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.importProgressSubscription?.unsubscribe();
   }
 }

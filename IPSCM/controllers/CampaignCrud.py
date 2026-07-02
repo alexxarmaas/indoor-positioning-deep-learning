@@ -39,7 +39,9 @@ def createCampaign(name, date, description, images, relatedCampaignId, campaignP
     db.session.add(campaign)
 
     db.session.commit()
+    campaignId = campaign.Id
     db.session.remove()
+    return campaignId
 
 
 def getCampaigns():
@@ -98,6 +100,16 @@ def deleteCampaignById(campaignId):
     
 def getLastInsertedCampaignId():
     return Campaign.query.order_by(Campaign.Id.desc()).first().Id
+
+
+def getRelatedCampaignIdByCampaignId(campaignId):
+    campaign = Campaign.query.filter_by(Id=campaignId).first()
+
+    if campaign and campaign.Id_related_campaign is not None:
+        return campaign.Id_related_campaign
+
+    raise ValueError(f'Campaign {campaignId} has no related aleatory campaign')
+
 
 def getPointsByCampaignId(campaignId):
     campaign = Campaign.query.filter_by(Id=campaignId).first()

@@ -1,2 +1,12 @@
 IPSCM/Coordenadas_predichas.csv
-IPSCM/__pycache__/*
+
+# Python generated files
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local Codex/project analysis cache
+.codebase-memory/
+
+# Raw campaign databases stay local
+Campañas/

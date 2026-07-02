@@ -22,9 +22,11 @@ export class GraphicsComponent {
   filteredData: any = [];
   totalSeries: any = [];
   selectedSeries: any = [];
+  precisionSummary: any[] = [];
+  accuracySummary: any[] = [];
   campaignFilteredPoints: any = [];
   campaoignFilteredErrors: any = [];
-  methods: string[] = ["WKNN", "SVR", "NuSVR", "LinearSVR"];
+  methods: string[] = ["WKNN", "DeepLearning", "SVR", "NuSVR", "LinearSVR"];
   protocols: string[] = ["Eddystone", "iBeacon"];
   channels: string[] = ["37", "38", "39"];
   selectAllProtocolsCheck: boolean = false;
@@ -47,6 +49,7 @@ export class GraphicsComponent {
   form!: FormGroup;
 
   ngOnInit(){
+    this.methods.splice(2, 0, 'DeepLearningPyTorch', 'DeepLearningHybrid');
     this.form = this.formBuilder.group({
       methods: ['', Validators.required],
       protocols: ['', Validators.required],
@@ -218,6 +221,17 @@ export class GraphicsComponent {
         this.form.get('gamma')?.setValidators(null);
         this.form.get('kernels')?.setValidators(null);
         break;
+      case "DeepLearning":
+      case 'DeepLearningPyTorch':
+      case 'DeepLearningHybrid':
+        if (this.selectedMethod === 'DeepLearningHybrid') {
+          this.form.get('channels')?.setValidators(null);
+        }
+        this.form.get('algorithms')?.setValidators(null);
+        this.form.get('metrics')?.setValidators(null);
+        this.form.get('gamma')?.setValidators(null);
+        this.form.get('kernels')?.setValidators(null);
+        break;
       case "SVR":
         this.SVRparams = true;
         this.form.get('algorithms')?.setValidators(null);
@@ -277,7 +291,9 @@ export class GraphicsComponent {
 
     this.filteredData = this.filterData(this.form.get('methods')?.value, "method", this.filteredData);
     this.filteredData = this.filterData(this.form.get('protocols')?.value, "protocol", this.filteredData);
-    this.filteredData = this.filterData(this.form.get('channels')?.value, "channel", this.filteredData);
+    if (this.selectedMethod !== 'DeepLearningHybrid') {
+      this.filteredData = this.filterData(this.form.get('channels')?.value, "channel", this.filteredData);
+    }
     
     switch(this.selectedMethod){
       case "WKNN":
@@ -290,6 +306,11 @@ export class GraphicsComponent {
         }
         break;
       
+      case "DeepLearning":
+      case 'DeepLearningPyTorch':
+      case 'DeepLearningHybrid':
+
+        break;
       case "SVR":
         this.filteredData = this.filterData(this.form.get('kernels')?.value, "kernel", this.filteredData);
         if(chartTipe == 'precision'){
@@ -526,6 +547,7 @@ export class GraphicsComponent {
 
   fillPrecisionData(filteredData:any){
     let labels = [];
+    this.precisionSummary = [];
 
     for(let i = 0; i < filteredData.length; i++){
       let item = filteredData[i];
@@ -535,20 +557,28 @@ export class GraphicsComponent {
           let data = cdfValues[j];
           let meanErrors = data.cdf;
           
-          let color = this.getRandomColor();
-          let backgroundColor = color + '0.2'; 
+          let color = this.getSeriesColor(data.key);
+          let summary = this.summarizeErrors(
+            meanErrors.slice(1).map((point:any) => Number(point.x))
+          );
+          this.precisionSummary.push({
+            label: data.key,
+            ...summary
+          });
 
           let dataset = {
               data: meanErrors,
               label: data.key,
-              backgroundColor: backgroundColor,
-              borderColor: color,
-              pointBackgroundColor: color,
+              backgroundColor: color.background,
+              borderColor: color.border,
+              pointBackgroundColor: color.border,
               pointBorderColor: '#fff',
               pointHoverBackgroundColor: '#fff',
-              pointHoverBorderColor: color,
+              pointHoverBorderColor: color.border,
               fill: false,
-              hidden: true
+              hidden: this.totalSeries.length >= 6,
+              borderWidth: 3,
+              pointRadius: 2
           }
 
           for (let selected of this.selectedSeries){
@@ -598,12 +628,13 @@ export class GraphicsComponent {
   fillAccuracyData(filteredData:any){
     let colors = ["#00BFFF", "#696969", "#228B22", "#FF69B4", "#DAA520", "#D2691E", "#4682B4"];
 
-    let datasets = [];
-    let labels = [];
+    let datasets:any[] = [];
+    let labels:any[] = [];
+    this.accuracySummary = [];
 
 
     let aleatoryPoints = filteredData[0].AleatoryData;
-    let pointColors_ale = aleatoryPoints.map((_:any, index:any) => colors[index % colors.length]);
+    let pointColors_ale = aleatoryPoints.map(() => '#111827');
 
     let dataset_ale = {
       data: aleatoryPoints,
@@ -618,7 +649,7 @@ export class GraphicsComponent {
       hidden: false,
       showLine: false,
       pointStyle: 'triangle',
-      pointRadius: 10
+      pointRadius: 8
     }
 
     datasets.push(dataset_ale);
@@ -631,7 +662,18 @@ export class GraphicsComponent {
           let data = predictedValues[j];
           let predPoints = data.values;
 
-          let pointColors = predPoints.map((_:any, index:any) => colors[index % colors.length]);
+          let color = this.getSeriesColor(data.key);
+          let pointColors = predPoints.map(() => color.border);
+          let planarErrors = predPoints
+            .slice(0, aleatoryPoints.length)
+            .map((point:any, index:number) => Math.hypot(
+              point.x - aleatoryPoints[index].x,
+              point.y - aleatoryPoints[index].y
+            ));
+          this.accuracySummary.push({
+            label: data.key,
+            ...this.summarizeErrors(planarErrors)
+          });
           let dataset_pred = {
               data: predPoints,
               label: data.key,
@@ -642,9 +684,9 @@ export class GraphicsComponent {
               pointHoverBackgroundColor: '#fff',
               pointHoverBorderColor: pointColors,
               fill: false,
-              hidden: true,
+              hidden: datasets.length > 6,
               showLine: false,
-              pointRadius: 10
+              pointRadius: 6
           }
 
           if(datasets.length < 30) {
@@ -680,10 +722,7 @@ export class GraphicsComponent {
           },
           beginAtZero: true,
           type:"linear",
-          max: 10,
-          ticks: {
-            stepSize: 2,
-          },
+          grace: '5%',
       },
       y: {
           title: {
@@ -747,10 +786,7 @@ export class GraphicsComponent {
           },
           beginAtZero: true,
           type:"linear",
-          max: 20,
-          ticks: {
-            stepSize: 2,
-          },
+          grace: '5%',
       },
       y: {
           title: {
@@ -759,10 +795,7 @@ export class GraphicsComponent {
           },
           type:"linear",
           beginAtZero: true,
-          max: 20,
-          ticks: {
-            stepSize: 2,
-          },
+          grace: '5%',
       },
     },
     plugins:{
@@ -779,15 +812,41 @@ export class GraphicsComponent {
 
   public pointsChartType: ChartType = 'line';
 
-  getRandomColor() {
-    let highChannel = Math.floor(Math.random() * 3);
+  getSeriesColor(label:string) {
+    let hash = 0;
+    for (let index = 0; index < label.length; index++) {
+      hash = label.charCodeAt(index) + ((hash << 5) - hash);
+    }
+    const hue = Math.abs(hash) % 360;
+    return {
+      border: 'hsl(' + hue + ', 72%, 42%)',
+      background: 'hsla(' + hue + ', 72%, 42%, 0.18)'
+    };
+  }
 
-    let r = highChannel === 0 ? 200 + Math.floor(Math.random() * 56) : Math.floor(Math.random() * 156);
-    let g = highChannel === 1 ? 200 + Math.floor(Math.random() * 56) : Math.floor(Math.random() * 156);
-    let b = highChannel === 2 ? 200 + Math.floor(Math.random() * 56) : Math.floor(Math.random() * 156);
+  summarizeErrors(errors:number[]) {
+    const sorted = errors
+      .filter(value => Number.isFinite(value))
+      .sort((first, second) => first - second);
+    if(sorted.length === 0) {
+      return { mean: 0, median: 0, p90: 0, maximum: 0 };
+    }
 
-    return 'rgb(' + r + ',' + g + ',' + b + ')';
-}
+    const percentile = (ratio:number) => {
+      const index = Math.min(
+        sorted.length - 1,
+        Math.max(0, Math.ceil(sorted.length * ratio) - 1)
+      );
+      return sorted[index];
+    };
+
+    return {
+      mean: sorted.reduce((total, value) => total + value, 0) / sorted.length,
+      median: percentile(0.5),
+      p90: percentile(0.9),
+      maximum: sorted[sorted.length - 1]
+    };
+  }
 
   insertPrecisionData(){
     this.totalSeries = [];
