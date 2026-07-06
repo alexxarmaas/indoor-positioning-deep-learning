@@ -7,8 +7,8 @@
             <form [formGroup]="form">
               <mat-form-field class="formField mr-2">
                 <mat-label>Método</mat-label>
-                <mat-select placeholder="Sin selección" formControlName="methods">
-                  <mat-option *ngFor="let method of methods" [value]="method" (click)="onMethodSelected(method)">
+                <mat-select placeholder="Sin selección" formControlName="methods" (selectionChange)="onMethodSelected($event.value)">
+                  <mat-option *ngFor="let method of methods" [value]="method">
                     {{ method }}
                   </mat-option>
                 </mat-select>
@@ -28,6 +28,14 @@
                   <mat-option class="mat-option" value="allMethods" (click)="selectAllChannels()">Seleccionar todos</mat-option>
                   <mat-option *ngFor="let channel of channels" [value]="channel">
                     {{ channel }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field *ngIf="DeepLearningparams" class="formField mr-2">
+                <mat-label>Arquitectura</mat-label>
+                <mat-select placeholder="Sin selección" formControlName="architectures">
+                  <mat-option *ngFor="let architecture of deepLearningArchitectureParams" [value]="architecture.value">
+                    {{ architecture.label }}
                   </mat-option>
                 </mat-select>
               </mat-form-field>
@@ -195,10 +203,18 @@
         <div class="columns p-2">
           <div class="column">
             <form [formGroup]="form">
+              <mat-form-field *ngIf="DeepLearningparams" class="formField mr-2">
+                <mat-label>Arquitectura</mat-label>
+                <mat-select placeholder="Sin selección" formControlName="architectures">
+                  <mat-option *ngFor="let architecture of deepLearningArchitectureParams" [value]="architecture.value">
+                    {{ architecture.label }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
               <mat-form-field class="formField mr-2">
                 <mat-label>Método</mat-label>
-                <mat-select placeholder="Sin selección" formControlName="methods">
-                  <mat-option *ngFor="let method of methods" [value]="method" (click)="onMethodSelected(method)">
+                <mat-select placeholder="Sin selección" formControlName="methods" (selectionChange)="onMethodSelected($event.value)">
+                  <mat-option *ngFor="let method of methods" [value]="method">
                     {{ method }}
                   </mat-option>
                 </mat-select>

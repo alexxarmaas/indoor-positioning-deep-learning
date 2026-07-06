@@ -1,5 +1,26 @@
-# Data Processing System for Indoor Positioning Improvement  
-### Integration with a Bluetooth Low Energy Data Collection Robotic Platform
+# Indoor Positioning Campaign Manager - Deep Learning Extension
+
+GPU-accelerated deep learning and ensemble methods for BLE fingerprint-based indoor positioning.
+
+> [!IMPORTANT]
+> This repository is derived from [SimonRusu/IPSCampaignManager](https://github.com/SimonRusu/IPSCampaignManager), originally created by **Simon Rusu** as his Bachelor's Thesis. The original Git history is preserved. The deep-learning extension and the campaign aggregation, experimentation, and visualization work were developed by [@juanfradelrm](https://github.com/juanfradelrm).
+
+## Extension overview
+
+This version extends the original indoor positioning platform with:
+
+- A scikit-learn MLP ensemble for RSSI fingerprint regression.
+- A GPU-accelerated PyTorch ResMLP ensemble with automatic CUDA/CPU selection.
+- A hybrid scikit-learn and PyTorch positioning method across BLE channels 37, 38, and 39.
+- Multi-day campaign aggregation and normalized reference-point imports.
+- Reproducible training, calibration, validation, and benchmark experiments.
+- Comparative accuracy and precision charts for Deep Learning and WKNN results.
+- Backend unit tests for positioning, campaign aggregation, and data processing.
+
+## Original project
+
+### Data Processing System for Indoor Positioning Improvement
+#### Integration with a Bluetooth Low Energy Data Collection Robotic Platform
 
 This repository contains the official documentation of my **Bachelor’s Thesis (TFG)**, focused on enhancing indoor positioning accuracy through automated data collection using a robotics-based platform. The project integrates Bluetooth Low Energy (BLE) signal acquisition with multiple positioning algorithms inside a modular and extensible processing system.
 
@@ -116,8 +137,11 @@ docker compose run --rm server python -m unittest discover -s tests -v
 ```
 
 ---
-## 👤 Author
+## Authors and attribution
 
-**Simon Rusu**  
-🔗 LinkedIn: [www.linkedin.com/in/simon-rusu-5069aa280](https://www.linkedin.com/in/simon-rusu-5069aa280)
+- **Original project and Bachelor's Thesis:** Simon Rusu - [LinkedIn](https://www.linkedin.com/in/simon-rusu-5069aa280) | [GitHub](https://github.com/SimonRusu)
+- **Deep-learning extension:** [@juanfradelrm](https://github.com/juanfradelrm)
 
+## License status
+
+The upstream repository did not include a root license file when this derivative was created. Copyright remains with the respective authors; contact them before reusing or redistributing the code beyond the permissions granted by GitHub's Terms of Service.

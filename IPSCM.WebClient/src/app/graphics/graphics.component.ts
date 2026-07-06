@@ -38,7 +38,15 @@ export class GraphicsComponent {
   algorithmParams: string[] = ["brute", "ball_tree", "kd_tree", "auto"]
   kernelParams: string[] = ["linear", "poly", "sigmoid", "rbf"]
   gammaParams: string[] = ["auto", "scale", "range"]
+  deepLearningArchitectureParams = [
+    { value: '64x32', label: '64 x 32' },
+    {
+      value: '128x128x64+128x64',
+      label: '128 x 128 x 64 + 128 x 64'
+    }
+  ];
   WKNNparams: boolean = false;
+  DeepLearningparams: boolean = false;
   SVRparams: boolean = false;
   NuSVRparams: boolean = false;
   LinearSVRparams: boolean = false;
@@ -54,6 +62,7 @@ export class GraphicsComponent {
       methods: ['', Validators.required],
       protocols: ['', Validators.required],
       channels: ['', Validators.required],
+      architectures: ['', Validators.required],
       metrics: ['', Validators.required],
       algorithms: ['', Validators.required],
       kernels: ['', Validators.required],
@@ -211,9 +220,14 @@ export class GraphicsComponent {
     this.validateAndClearFields();
 
     this.WKNNparams = false;
+    this.DeepLearningparams = false;
     this.SVRparams = false;
     this.NuSVRparams = false;
     this.LinearSVRparams = false;
+
+    if (method !== 'DeepLearning') {
+      this.form.get('architectures')?.setValidators(null);
+    }
 
     switch(this.selectedMethod){
       case "WKNN":
@@ -221,7 +235,13 @@ export class GraphicsComponent {
         this.form.get('gamma')?.setValidators(null);
         this.form.get('kernels')?.setValidators(null);
         break;
-      case "DeepLearning":
+      case 'DeepLearning':
+        this.DeepLearningparams = true;
+        this.form.get('algorithms')?.setValidators(null);
+        this.form.get('metrics')?.setValidators(null);
+        this.form.get('gamma')?.setValidators(null);
+        this.form.get('kernels')?.setValidators(null);
+        break;
       case 'DeepLearningPyTorch':
       case 'DeepLearningHybrid':
         if (this.selectedMethod === 'DeepLearningHybrid') {
@@ -260,6 +280,8 @@ export class GraphicsComponent {
     this.form.get('methods')?.setValidators(Validators.required);
     this.form.get('protocols')?.setValidators(Validators.required);
     this.form.get('channels')?.setValidators(Validators.required);
+    this.form.get('architectures')?.setValidators(Validators.required);
+    this.form.get('architectures')?.reset();
     this.form.get('metrics')?.setValidators(Validators.required);
     this.form.get('metrics')?.reset();
     this.form.get('algorithms')?.setValidators(Validators.required);
@@ -306,7 +328,13 @@ export class GraphicsComponent {
         }
         break;
       
-      case "DeepLearning":
+      case 'DeepLearning':
+        this.filteredData = this.filterDeepLearningArchitecture(
+          this.filteredData,
+          this.form.get('architectures')?.value,
+          chartTipe === 'precision' ? 'Mean_error' : 'Predicted_points'
+        );
+        break;
       case 'DeepLearningPyTorch':
       case 'DeepLearningHybrid':
 
@@ -338,6 +366,25 @@ export class GraphicsComponent {
         break;
     }
 
+    if (this.filteredData.length === 0) {
+      if (chartTipe === 'precision') {
+        this.precisionSummary = [];
+        this.lineChartData = { datasets: [], labels: [] };
+      } else {
+        this.accuracySummary = [];
+        this.pointsChartData = { datasets: [], labels: [] };
+      }
+      const noResultsMessage = this.selectedMethod === 'DeepLearning'
+        ? 'No hay resultados para la arquitectura seleccionada.'
+        : 'No hay resultados para los filtros seleccionados.';
+      this.toastr.warning(
+        noResultsMessage,
+        'Sin datos',
+        { timeOut: 4000 }
+      );
+      return;
+    }
+
     if(chartTipe === 'precision'){
       let parsedData = this.parsePrecisionData();
       this.fillPrecisionData(parsedData);
@@ -354,6 +401,72 @@ export class GraphicsComponent {
       const methodDescription = JSON.parse(object.Method_description);
       return filterArray.some((filter: string) => filter === methodDescription[property].toString());
     })
+  }
+
+  filterDeepLearningArchitecture(
+    data: any[],
+    selectedArchitecture: string,
+    attribute: 'Mean_error' | 'Predicted_points'
+  ): any[] {
+    return data.reduce((matches:any[], item:any) => {
+      const series = JSON.parse(item[attribute] || '{}');
+      const filteredSeries = Object.entries(series).reduce(
+        (result:any, [key, value]) => {
+          if (this.seriesUsesArchitecture(
+            key,
+            selectedArchitecture,
+            item.Method_description
+          )) {
+            result[key] = value;
+          }
+          return result;
+        },
+        {}
+      );
+
+      if (Object.keys(filteredSeries).length > 0) {
+        matches.push({
+          ...item,
+          [attribute]: JSON.stringify(filteredSeries)
+        });
+      }
+      return matches;
+    }, []);
+  }
+
+  seriesUsesArchitecture(
+    seriesKey: string,
+    selectedArchitecture: string,
+    methodDescription: string
+  ): boolean {
+    const layersMatch = seriesKey.match(/\[layers=([^\]]+)\]/i);
+    if (layersMatch) {
+      return this.normalizeArchitecture(layersMatch[1]) ===
+        this.normalizeArchitecture(selectedArchitecture);
+    }
+
+    // Los resultados historicos 64x32 no incluian [layers=...] en la serie.
+    if (selectedArchitecture !== '64x32') {
+      return false;
+    }
+
+    try {
+      const description = JSON.parse(methodDescription || '{}');
+      const configuredLayers = description.deepLearning?.hiddenLayers;
+      return !configuredLayers ||
+        this.normalizeArchitecture(configuredLayers.join('x')) === '64x32';
+    } catch {
+      return true;
+    }
+  }
+
+  normalizeArchitecture(architecture: string): string {
+    return architecture
+      .toLowerCase()
+      .replace(/\s/g, '')
+      .split('+')
+      .sort()
+      .join('+');
   }
 
   filterRange(data: any[], rangeType: string, atribute: string): any[] {
