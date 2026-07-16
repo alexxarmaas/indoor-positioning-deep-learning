@@ -492,7 +492,8 @@ def getKeyDescription(description):
     keyName = ''
     excludedFields = {
         'ksRange', 'cs', 'Is', 'nus', 'gammas', 'deepLearning',
-        'deepLearningPyTorch', 'deepLearningHybrid',
+        'deepLearningPyTorch', 'deepLearningHybrid', 'beaconCount',
+        'beaconMacs',
     }
 
     for field, value in key.items():

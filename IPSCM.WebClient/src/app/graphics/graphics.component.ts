@@ -670,18 +670,21 @@ export class GraphicsComponent {
           let data = cdfValues[j];
           let meanErrors = data.cdf;
           
+          let displayLabel = this.getDisplaySeriesLabel(
+            data.key, item.Method_description
+          );
           let color = this.getSeriesColor(data.key);
           let summary = this.summarizeErrors(
             meanErrors.slice(1).map((point:any) => Number(point.x))
           );
           this.precisionSummary.push({
-            label: data.key,
+            label: displayLabel,
             ...summary
           });
 
           let dataset = {
               data: meanErrors,
-              label: data.key,
+              label: displayLabel,
               backgroundColor: color.background,
               borderColor: color.border,
               pointBackgroundColor: color.border,
@@ -775,6 +778,9 @@ export class GraphicsComponent {
           let data = predictedValues[j];
           let predPoints = data.values;
 
+          let displayLabel = this.getDisplaySeriesLabel(
+            data.key, item.Method_description
+          );
           let color = this.getSeriesColor(data.key);
           let pointColors = predPoints.map(() => color.border);
           let planarErrors = predPoints
@@ -784,12 +790,12 @@ export class GraphicsComponent {
               point.y - aleatoryPoints[index].y
             ));
           this.accuracySummary.push({
-            label: data.key,
+            label: displayLabel,
             ...this.summarizeErrors(planarErrors)
           });
           let dataset_pred = {
               data: predPoints,
-              label: data.key,
+              label: displayLabel,
               backgroundColor: pointColors,
               borderColor: pointColors,
               pointBackgroundColor: pointColors,
@@ -925,6 +931,30 @@ export class GraphicsComponent {
 
   public pointsChartType: ChartType = 'line';
 
+  getDisplaySeriesLabel(label:string, methodDescription?:string) {
+    try {
+      const description = JSON.parse(methodDescription || '{}');
+      const beaconMacs = description.beaconMacs;
+
+      if (!Array.isArray(beaconMacs) || beaconMacs.length === 0) {
+        return label;
+      }
+
+      const beaconCount = description.beaconCount ?? beaconMacs.length;
+      const serializedMacs = '[' + beaconMacs
+        .map((mac:string) => "'" + mac + "'")
+        .join(', ') + ']';
+      const macToken = '[' + serializedMacs + ']';
+      const inventoryToken = '[' + beaconCount + ']' + macToken;
+
+      return label
+        .replace(inventoryToken, '')
+        .replace(macToken, '');
+    } catch {
+      return label;
+    }
+  }
+
   getSeriesColor(label:string) {
     let hash = 0;
     for (let index = 0; index < label.length; index++) {
@@ -942,7 +972,7 @@ export class GraphicsComponent {
       .filter(value => Number.isFinite(value))
       .sort((first, second) => first - second);
     if(sorted.length === 0) {
-      return { mean: 0, median: 0, p90: 0, maximum: 0 };
+      return { count: 0, mean: 0, median: 0, rmse: 0, p90: 0, maximum: 0 };
     }
 
     const percentile = (ratio:number) => {
@@ -954,8 +984,12 @@ export class GraphicsComponent {
     };
 
     return {
+      count: sorted.length,
       mean: sorted.reduce((total, value) => total + value, 0) / sorted.length,
       median: percentile(0.5),
+      rmse: Math.sqrt(
+        sorted.reduce((total, value) => total + value * value, 0) / sorted.length
+      ),
       p90: percentile(0.9),
       maximum: sorted[sorted.length - 1]
     };

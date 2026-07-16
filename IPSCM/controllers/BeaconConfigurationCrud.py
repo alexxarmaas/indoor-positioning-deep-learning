@@ -1,46 +1,95 @@
+import logging
 from flask import jsonify
-from controllers.BeaconBleSignalCrud import getMacsByCampaignId
+from controllers.BeaconBleSignalCrud import getMacsByCampaignId, normalizeMac
 from controllers.CampaignConfigurationsCrud import createCampaignConfigurations, getCampaignBeaconConfigurationIdsByCampaignId
 from models.BeaconConfiguration import BeaconConfiguration, BeaconConfigurationAux
 from config import db
-from sqlalchemy import desc, func
+from sqlalchemy import func
+
+logger = logging.getLogger(__name__)
+
+
+def _normalizedMacColumn(column):
+    return func.replace(func.lower(func.trim(column)), '-', ':')
+
+
+def _sourceConfigurationsByMac():
+    configurations = {}
+    for source in BeaconConfigurationAux.query.order_by(BeaconConfigurationAux.Id.asc()).all():
+        mac = normalizeMac(source.Mac)
+        if mac and mac not in configurations:
+            configurations[mac] = source
+    return configurations
+
+
+def _findExistingConfiguration(mac, source):
+    candidates = BeaconConfiguration.query.filter(
+        _normalizedMacColumn(BeaconConfiguration.Mac) == mac
+    ).order_by(BeaconConfiguration.Id.asc()).all()
+
+    if source is not None:
+        for candidate in candidates:
+            if (
+                candidate.Power == source.Power
+                and candidate.Update_frequency == source.Update_frequency
+            ):
+                return candidate
+        return None
+
+    return candidates[0] if candidates else None
+
+
+def _createObservedConfiguration(mac, source):
+    configuration = BeaconConfiguration()
+    configuration.Mac = mac
+
+    if source is not None:
+        configuration.Power = source.Power
+        configuration.Calibrated_power = source.Calibrated_power
+        configuration.Update_frequency = source.Update_frequency
+        configuration.Identificator = source.Identificator
+
+    db.session.add(configuration)
+    db.session.flush()
+    return configuration
+
 
 def createBeaconConfiguration(campaignId, beaconConfName):
+    """Associate every MAC observed in the imported campaign."""
     db.create_all()
 
-    unique_macs = db.session.query(BeaconConfigurationAux.Mac).distinct().all()
-    uniqueMacsList = [x[0] for x in unique_macs]
-    actualBeaconConfigurations = db.session.query(BeaconConfiguration).all()
-    newBeaconConfigurations = BeaconConfigurationAux.query.filter(BeaconConfigurationAux.Mac.in_(uniqueMacsList)).group_by(BeaconConfigurationAux.Mac).all()
-    usedBeacons = getMacsByCampaignId(campaignId)
+    sourcesByMac = _sourceConfigurationsByMac()
+    observedMacs = getMacsByCampaignId(campaignId)
+    missingMetadata = []
 
+    for mac in observedMacs:
+        source = sourcesByMac.get(mac)
+        configuration = _findExistingConfiguration(mac, source)
 
-    for i in newBeaconConfigurations:
-        is_unique = True
-        for j in actualBeaconConfigurations:
-            if  i.Mac == j.Mac and i.Power == j.Power and i.Update_frequency == j.Update_frequency:
-                if i.Mac in usedBeacons:
-                    beaconConfId = getIdByMacPowerFrequency(i.Mac, i.Power, i.Update_frequency)
-                    createCampaignConfigurations(campaignId, beaconConfId, beaconConfName)
-                is_unique = False
-                break
-        if is_unique:
-                beaconConfiguration = BeaconConfiguration()
-                beaconConfiguration.Mac = i.Mac
-                beaconConfiguration.Power = i.Power
-                beaconConfiguration.Calibrated_power = i.Calibrated_power
-                beaconConfiguration.Update_frequency = i.Update_frequency
-                beaconConfiguration.Identificator = i.Identificator
-                db.session.add(beaconConfiguration)
-                db.session.flush()
+        if configuration is None:
+            configuration = _createObservedConfiguration(mac, source)
 
-                if i.Mac in usedBeacons:
-                    beaconConfId = beaconConfiguration.Id
-                    createCampaignConfigurations(campaignId, beaconConfId, beaconConfName)
+        createCampaignConfigurations(
+            campaignId, configuration.Id, beaconConfName
+        )
+
+        if source is None:
+            missingMetadata.append(mac)
 
     db.session.commit()
     db.session.remove()
 
+    if missingMetadata:
+        logger.warning(
+            'Campaign %s imported %s observed beacons without configuration '
+            'metadata: %s',
+            campaignId, len(missingMetadata), ', '.join(missingMetadata)
+        )
+
+    return {
+        'observedCount': len(observedMacs),
+        'missingMetadata': missingMetadata
+    }
 
 def getJsonBeaconConfigurationByCampaignId(campaignId):
     ids = getCampaignBeaconConfigurationIdsByCampaignId(campaignId)

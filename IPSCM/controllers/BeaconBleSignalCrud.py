@@ -3,6 +3,20 @@ from controllers.CaptureCrud import getCaptureIdsByCampaignId
 from models.BeaconBleSignal import BeaconBleSignal, BeaconBleSignalAux
 from models.Capture import Capture
 from config import db
+from sqlalchemy import func
+
+
+def normalizeMac(mac):
+    """Return a stable representation for MAC addresses stored by campaigns."""
+    if mac is None:
+        return None
+
+    normalized = mac.strip().lower().replace('-', ':')
+    return normalized or None
+
+
+def _normalizedMacColumn():
+    return func.replace(func.lower(func.trim(BeaconBleSignal.Mac)), '-', ':')
 
 
 def createBeaconBleSignal(captureIdMapping):
@@ -19,7 +33,7 @@ def createBeaconBleSignal(captureIdMapping):
             'Id_capture': targetCaptureId,
             'N_reading': i.N_reading,
             'Date_hour': i.Date_hour,
-            'Mac': i.Mac,
+            'Mac': normalizeMac(i.Mac),
             'Pack_size': i.Pack_size,
             'Channel': i.Channel,
             'RSSI': i.RSSI,
@@ -93,10 +107,34 @@ def countBeaconBleSignalsByCaptureIds(captureIds):
 
 
 def getMacsByCampaignId(campaignId):
-    captureIds = getCaptureIdsByCampaignId(campaignId)
-    beaconBleSignals = BeaconBleSignal.query.filter(BeaconBleSignal.Id_capture.in_(captureIds)).all()
-    macs = list(set(signal.Mac for signal in beaconBleSignals))
-    return macs
+    normalizedMac = _normalizedMacColumn()
+    rows = db.session.query(normalizedMac).join(
+        Capture,
+        BeaconBleSignal.Id_capture == Capture.Id
+    ).filter(
+        Capture.Id_campaign == campaignId,
+        normalizedMac.isnot(None),
+        normalizedMac != ''
+    ).distinct().all()
+
+    return sorted(row[0] for row in rows)
+
+
+def getObservedMacsByCampaignAndProtocol(campaignId, protocol):
+    """Return the normalized MACs actually observed for a campaign/protocol."""
+    normalizedMac = _normalizedMacColumn()
+    normalizedProtocol = protocol.strip().lower()
+    rows = db.session.query(normalizedMac).join(
+        Capture,
+        BeaconBleSignal.Id_capture == Capture.Id
+    ).filter(
+        Capture.Id_campaign == campaignId,
+        func.lower(func.trim(BeaconBleSignal.Protocol)) == normalizedProtocol,
+        normalizedMac.isnot(None),
+        normalizedMac != ''
+    ).distinct().all()
+
+    return sorted(row[0] for row in rows)
 
 
 def existsBeaconWithProtocol(campaignId, mac, protocol):

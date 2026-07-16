@@ -365,6 +365,39 @@
             <div class="box chart-container">
                 <canvas baseChart class="chart is-fullwidth" [data]="pointsChartData" [options]="pointsChartOptions" [type]="pointsChartType"></canvas>
             </div>
+            <div class='box metrics-summary' *ngIf='accuracySummary.length > 0'>
+              <h3 class='title is-5'>Error de posicionamiento en planta</h3>
+              <p class='mb-4'>
+                Distancia euclídea entre cada punto real y el estimado. La media es
+                la magnitud comparable con la exactitud indicada en el Excel.
+              </p>
+              <div class='table-container'>
+                <table class='table is-striped is-hoverable is-fullwidth'>
+                  <thead>
+                    <tr>
+                      <th>Serie</th>
+                      <th>Exactitud media</th>
+                      <th>Mediana</th>
+                      <th>RMSE</th>
+                      <th>P90</th>
+                      <th>Máximo</th>
+                      <th>N</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor='let summary of accuracySummary'>
+                      <td class='series-name'>{{ summary.label }}</td>
+                      <td><strong>{{ summary.mean | number:'1.4-4' }} m</strong></td>
+                      <td>{{ summary.median | number:'1.2-2' }} m</td>
+                      <td>{{ summary.rmse | number:'1.2-2' }} m</td>
+                      <td>{{ summary.p90 | number:'1.2-2' }} m</td>
+                      <td>{{ summary.maximum | number:'1.2-2' }} m</td>
+                      <td>{{ summary.count }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>

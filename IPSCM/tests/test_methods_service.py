@@ -10,6 +10,7 @@ from services.MethodsService import (
     applyMethod,
     calculateError,
     getDeepLearningConfiguration,
+    getKeyDescription,
     getPyTorchDeepLearningConfiguration,
     inverseDistanceWeights,
     prepareDeepLearningFeatures,
@@ -140,6 +141,19 @@ class MethodsServiceTest(unittest.TestCase):
         np.testing.assert_array_equal(weights[0], [1.0, 0.0])
         np.testing.assert_array_equal(weights[1], [1.0, 0.5])
         self.assertTrue(np.isfinite(weights).all())
+
+    def test_beacon_inventory_is_hidden_from_visible_series_labels(self):
+        description = json.loads(
+            self._description('WKNN', 'manhattan', 'brute')
+        )
+        description['beaconCount'] = 2
+        description['beaconMacs'] = ['aa:aa', 'bb:bb']
+
+        label = getKeyDescription(json.dumps(description))
+
+        self.assertIn('[WKNN]', label)
+        self.assertNotIn('[2]', label)
+        self.assertNotIn('aa:aa', label)
 
     def test_non_finite_results_are_rejected_before_persistence(self):
         with self.assertRaisesRegex(ValueError, 'NaN or infinite'):

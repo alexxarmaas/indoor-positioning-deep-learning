@@ -1,8 +1,10 @@
 import json
 import numpy as np
 from datetime import datetime
-from controllers.BeaconBleSignalCrud import countBeaconBleSignalsByCaptureIds, getBeaconBleSignalById, existsBeaconWithProtocol
-from controllers.BeaconConfigurationCrud import getBeaconConfigurationByCampaignId
+from controllers.BeaconBleSignalCrud import (
+    countBeaconBleSignalsByCaptureIds, getBeaconBleSignalById,
+    getObservedMacsByCampaignAndProtocol
+)
 from controllers.CampaignCrud import getPointsByCampaignId, getRelatedCampaignIdByCampaignId
 from controllers.CaptureCrud import getCaptureIdsByCampaignId, getCapturesById
 from controllers.MethodPredataCrud import createMethodPredataBatch, getFilteredPredataSamples, getUniqueCoordinatesByCampaignId
@@ -108,7 +110,7 @@ def dataProcessing(data):
                 for algorithm in algorithms:
                     for kernel in kernels:
 
-                        taskId = taskToJson(method, protocol, channel, rssiSamples, algorithm, metric, ksRangeJson, kernel, cs, gammas, nus, Is)
+                        taskId = taskToJson(method, protocol, channel, rssiSamples, algorithm, metric, ksRangeJson, kernel, cs, gammas, nus, Is, beaconMacs)
                         
                         if not checkExistingMethodPrediction(campaignId, taskId):
 
@@ -204,7 +206,7 @@ def processDeepLearningHybrid(data):
             raise ValueError(f'No common beacons for protocol {protocol}')
         taskId = taskToJson(
             'DeepLearningHybrid', protocol, '37+38+39', rssiSamples,
-            0, 0, '[0, 0]', 0, [None], [None], [None], [None]
+            0, 0, '[0, 0]', 0, [None], [None], [None], [None], beaconMacs
         )
         if checkExistingMethodPrediction(campaignId, taskId):
             skippedTasks += 1
@@ -415,20 +417,17 @@ def getAlePointsMatrix(points, points_conf, beaconMacs, campaignId, protocol, ch
     return alePointsMatrix
 
 def processBeaconMacs(referenceCampaignId, aleatoryCampaignId, protocol):
-    aleatoryConfigurations = getBeaconConfigurationByCampaignId(aleatoryCampaignId)
-    referenceConfigurations = getBeaconConfigurationByCampaignId(referenceCampaignId)
-
-    aleatoryBeaconMacs = {
-        mac for mac in aleatoryConfigurations if existsBeaconWithProtocol(aleatoryCampaignId, mac, protocol)
-    }
-    referenceBeaconMacs = {
-        mac for mac in referenceConfigurations if existsBeaconWithProtocol(referenceCampaignId, mac, protocol)
-    }
+    aleatoryBeaconMacs = set(getObservedMacsByCampaignAndProtocol(
+        aleatoryCampaignId, protocol
+    ))
+    referenceBeaconMacs = set(getObservedMacsByCampaignAndProtocol(
+        referenceCampaignId, protocol
+    ))
 
     return sorted(aleatoryBeaconMacs & referenceBeaconMacs)
 
 
-def taskToJson(methods, protocols, channels, rssiSamples, algorithm, metric, ksRange, kernel, cs, gammas, nus, Is):
+def taskToJson(methods, protocols, channels, rssiSamples, algorithm, metric, ksRange, kernel, cs, gammas, nus, Is, beaconMacs=None):
     taskDescription = {
         'method': methods,
         'protocol': protocols,
@@ -443,6 +442,10 @@ def taskToJson(methods, protocols, channels, rssiSamples, algorithm, metric, ksR
         'nus': nus,
         'Is': Is
     }
+
+    if beaconMacs is not None:
+        taskDescription['beaconCount'] = len(beaconMacs)
+        taskDescription['beaconMacs'] = list(beaconMacs)
 
     if methods == 'DeepLearning':
         taskDescription['deepLearning'] = getDeepLearningConfiguration()

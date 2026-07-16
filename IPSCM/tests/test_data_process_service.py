@@ -1,13 +1,17 @@
+import json
 import unittest
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 import numpy as np
 
+from controllers.BeaconBleSignalCrud import normalizeMac
 from services.DataProcessService import (
     buildCaptureFingerprints,
     getDeepLearningRefPointsMatrix,
+    processBeaconMacs,
+    taskToJson,
 )
 from services.MethodsService import MISSING_RSSI
 
@@ -88,6 +92,38 @@ class DataProcessServiceTest(unittest.TestCase):
             fingerprints[0], [MISSING_RSSI, -70, -80]
         )
         np.testing.assert_array_equal(fingerprints[1], [-60, -70, -80])
+
+    def test_mac_normalization_is_case_and_separator_independent(self):
+        self.assertEqual(
+            normalizeMac(' DC-D7-D7-DD-EC-4A '),
+            'dc:d7:d7:dd:ec:4a'
+        )
+
+    @patch('services.DataProcessService.getObservedMacsByCampaignAndProtocol')
+    def test_process_beacon_macs_intersects_observed_signals(self, get_macs):
+        get_macs.side_effect = lambda campaign_id, protocol: {
+            10: ['aa:aa', 'bb:bb', 'cc:cc'],
+            20: ['bb:bb', 'cc:cc', 'dd:dd'],
+        }[campaign_id]
+
+        result = processBeaconMacs(10, 20, 'iBeacon')
+
+        self.assertEqual(result, ['bb:bb', 'cc:cc'])
+        get_macs.assert_has_calls([
+            call(20, 'iBeacon'),
+            call(10, 'iBeacon'),
+        ])
+
+    def test_task_description_records_the_exact_beacon_inventory(self):
+        beacon_macs = ['aa:aa', 'bb:bb']
+
+        task = json.loads(taskToJson(
+            'WKNN', 'iBeacon', 37, 20, 'auto', 'manhattan',
+            '[1, 5]', 0, [None], [None], [None], [None], beacon_macs
+        ))
+
+        self.assertEqual(task['beaconCount'], 2)
+        self.assertEqual(task['beaconMacs'], beacon_macs)
 
 
 if __name__ == '__main__':
