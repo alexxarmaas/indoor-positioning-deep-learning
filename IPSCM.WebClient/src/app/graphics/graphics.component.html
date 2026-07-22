@@ -31,14 +31,6 @@
                   </mat-option>
                 </mat-select>
               </mat-form-field>
-              <mat-form-field *ngIf="DeepLearningparams" class="formField mr-2">
-                <mat-label>Arquitectura</mat-label>
-                <mat-select placeholder="Sin selección" formControlName="architectures">
-                  <mat-option *ngFor="let architecture of deepLearningArchitectureParams" [value]="architecture.value">
-                    {{ architecture.label }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
               <div class="field" *ngIf="WKNNparams">
                 <mat-form-field class="formField">
                   <mat-label>Métrica</mat-label>
@@ -203,14 +195,6 @@
         <div class="columns p-2">
           <div class="column">
             <form [formGroup]="form">
-              <mat-form-field *ngIf="DeepLearningparams" class="formField mr-2">
-                <mat-label>Arquitectura</mat-label>
-                <mat-select placeholder="Sin selección" formControlName="architectures">
-                  <mat-option *ngFor="let architecture of deepLearningArchitectureParams" [value]="architecture.value">
-                    {{ architecture.label }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
               <mat-form-field class="formField mr-2">
                 <mat-label>Método</mat-label>
                 <mat-select placeholder="Sin selección" formControlName="methods" (selectionChange)="onMethodSelected($event.value)">

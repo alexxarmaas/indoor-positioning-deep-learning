@@ -16,7 +16,9 @@ from controllers.CampaignCrud import (
 )
 from controllers.MethodPredataCrud import getUniqueCoordinatesByCampaignId
 from services.DataProcessService import (
+    buildEvaluationSamplePlan,
     getAlePointsMatrix,
+    getConfiguredRotations,
     getDeepLearningRefPointsMatrix,
     processBeaconMacs,
 )
@@ -106,7 +108,6 @@ def saveResults(path, channel, trials):
 def loadReferenceMatrix(channel):
     pointsConfiguration = getPointsByCampaignId(CAMPAIGN_ID)
     referenceConfiguration = pointsConfiguration['Ref_points']
-    aleatoryConfiguration = pointsConfiguration['Ale_points']
     aleatoryCampaignId = getRelatedCampaignIdByCampaignId(CAMPAIGN_ID)
     referencePoints = getUniqueCoordinatesByCampaignId(
         CAMPAIGN_ID, len(referenceConfiguration)
@@ -114,10 +115,6 @@ def loadReferenceMatrix(channel):
     beaconMacs = processBeaconMacs(
         CAMPAIGN_ID, aleatoryCampaignId, PROTOCOL
     )
-    allowedRotations = {
-        float(point['Rotation'])
-        for point in aleatoryConfiguration.values()
-    }
     matrix = getDeepLearningRefPointsMatrix(
         referencePoints,
         referenceConfiguration,
@@ -126,7 +123,7 @@ def loadReferenceMatrix(channel):
         PROTOCOL,
         channel,
         RSSI_SAMPLES,
-        allowedRotations,
+        set(getConfiguredRotations(referenceConfiguration)),
     )
     return (
         prepareDeepLearningFeatures(matrix[:, :-3]),
@@ -144,6 +141,10 @@ def loadEvaluationMatrix(channel):
     beaconMacs = processBeaconMacs(
         CAMPAIGN_ID, aleatoryCampaignId, PROTOCOL
     )
+    evaluationSamplePlan = buildEvaluationSamplePlan(
+        aleatoryPoints, aleatoryConfiguration, beaconMacs,
+        aleatoryCampaignId, PROTOCOL
+    )
     matrix = getAlePointsMatrix(
         aleatoryPoints,
         aleatoryConfiguration,
@@ -152,6 +153,7 @@ def loadEvaluationMatrix(channel):
         PROTOCOL,
         channel,
         RSSI_SAMPLES,
+        evaluationSamplePlan,
     )
     return (
         prepareDeepLearningFeatures(matrix[:, :-3]),

@@ -25,7 +25,7 @@ export class IpsCampaignCardComponent implements OnDestroy {
   selectAllMetricsCheck: boolean = false;
   selectAllAlgorithmsCheck: boolean = false;
 
-  metricParams: string[] = ["manhattan", "chebyshev", "minkowski"]
+  metricParams: string[] = ["euclidean", "manhattan", "chebyshev", "minkowski"]
   algorithmParams: string[] = ["brute", "ball_tree", "kd_tree", "auto"]
   kernelParams: string[] = ["linear", "poly", "sigmoid", "rbf"]
   gammaParams: string[] = ["auto", "scale", "range"]

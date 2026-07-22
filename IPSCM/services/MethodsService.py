@@ -42,7 +42,7 @@ DL_MODEL_SELECTION_FOLDS = 4
 DL_MODEL_SELECTION_MIN_GROUPS = 6
 DL_P90_WEIGHT = 0.5
 DL_MIN_SAMPLES_FOR_EARLY_STOPPING = 100
-DL_AGGREGATE_FINGERPRINT_REPETITIONS = 6
+DL_AGGREGATE_FINGERPRINT_REPETITIONS = 0
 MISSING_RSSI = -110.0
 
 
@@ -350,7 +350,7 @@ def getDeepLearningConfiguration():
         'ensembleAggregation': 'coordinate-wise median',
         'featureEngineering': ['absolute RSSI', 'relative RSSI', 'missing mask'],
         'spatialClipping': True,
-        'trainingSamples': 'captures matching aleatory rotations',
+        'trainingSamples': 'real captures from all configured orientations',
         'aggregateFingerprintRepetitions':
             DL_AGGREGATE_FINGERPRINT_REPETITIONS,
         'missingRSSI': MISSING_RSSI
@@ -366,7 +366,7 @@ def getPyTorchDeepLearningConfiguration():
             'missing mask',
         ],
         'spatialClipping': True,
-        'trainingSamples': 'captures matching aleatory rotations',
+        'trainingSamples': 'real captures from all configured orientations',
         'aggregateFingerprintRepetitions':
             DL_AGGREGATE_FINGERPRINT_REPETITIONS,
         'missingRSSI': MISSING_RSSI,
@@ -493,7 +493,7 @@ def getKeyDescription(description):
     excludedFields = {
         'ksRange', 'cs', 'Is', 'nus', 'gammas', 'deepLearning',
         'deepLearningPyTorch', 'deepLearningHybrid', 'beaconCount',
-        'beaconMacs',
+        'beaconMacs', 'orientationHandling',
     }
 
     for field, value in key.items():

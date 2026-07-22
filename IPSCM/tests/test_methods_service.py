@@ -120,6 +120,20 @@ class MethodsServiceTest(unittest.TestCase):
                 self.assertTrue(np.isfinite(values).all())
                 self.assertEqual(values, sorted(values))
 
+    def test_wknn_supports_euclidean_distance(self):
+        results = applyMethod(
+            self.train, self.test, 'WKNN', 'euclidean', 'brute', [1, 1],
+            0, [None], [None], [None], [None],
+            self._description('WKNN', 'euclidean', 'brute'),
+        )
+
+        self.assertEqual(len(results), 1)
+        key = next(iter(results))
+        self.assertIn('[euclidean]', key)
+        prediction = np.asarray(results[key])
+        self.assertEqual(prediction.shape, (len(self.test), 3))
+        self.assertTrue(np.isfinite(prediction).all())
+
     def test_missing_rssi_is_replaced_with_the_configured_floor(self):
         features = np.array([[-50.0, np.nan, -np.inf, np.inf]])
         prepared = prepareRSSIFeatures(features)

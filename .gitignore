@@ -10,3 +10,7 @@ IPSCM/Coordenadas_predichas.csv
 
 # Raw campaign databases stay local
 Campañas/
+# Generated experiment outputs (kept locally, not versioned)
+Resultados/DB_*/
+Resultados/*.json
+Resultados/calibration/*.json

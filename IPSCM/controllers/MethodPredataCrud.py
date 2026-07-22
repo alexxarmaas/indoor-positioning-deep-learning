@@ -48,6 +48,30 @@ def getFilteredPredataSamples(campaignId, rssiSamples, dongle_rotation, mac, pro
     return predata_samples
 
 
+def hasPredataForFingerprint(
+        campaignId, dongleRotation, beaconMacs, protocol,
+        positionX, positionY, positionZ):
+    """Return whether a point/rotation has any usable BLE observation.
+
+    The check is deliberately channel-independent so the same evaluation
+    sample plan can be reused by channels 37, 38 and 39 in the hybrid model.
+    """
+    if not beaconMacs:
+        return False
+
+    query = MethodPredata.query.filter(
+        MethodPredata.Id_campaign == campaignId,
+        MethodPredata.Dongle_rotation == dongleRotation,
+        MethodPredata.Mac.in_(beaconMacs),
+        MethodPredata.Protocol == protocol,
+        func.round(MethodPredata.Position_x, 5) == round(positionX, 5),
+        func.round(MethodPredata.Position_y, 5) == round(positionY, 5),
+        func.round(MethodPredata.Position_z, 5) == round(positionZ, 5),
+    )
+
+    return query.with_entities(MethodPredata.Id).first() is not None
+
+
 def getUniqueCoordinatesByCampaignId(campaignId, limit):
     unique_coordinates = db.session.query(
         MethodPredata.Position_x,

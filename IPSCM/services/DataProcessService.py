@@ -7,7 +7,12 @@ from controllers.BeaconBleSignalCrud import (
 )
 from controllers.CampaignCrud import getPointsByCampaignId, getRelatedCampaignIdByCampaignId
 from controllers.CaptureCrud import getCaptureIdsByCampaignId, getCapturesById
-from controllers.MethodPredataCrud import createMethodPredataBatch, getFilteredPredataSamples, getUniqueCoordinatesByCampaignId
+from controllers.MethodPredataCrud import (
+    createMethodPredataBatch,
+    getFilteredPredataSamples,
+    getUniqueCoordinatesByCampaignId,
+    hasPredataForFingerprint,
+)
 from controllers.MethodPredictionCrud import checkExistingMethodPrediction, createMethodPrediction
 from services.HybridPositioningService import (
     applyHybridDeepLearningMethod,
@@ -23,6 +28,9 @@ from services.MethodsService import (
     validateFiniteResults,
 )
 from controllers.TaskHistoryCrud import createTaskHistory, updateTaskHistory
+
+
+ORIENTATION_PROCESSING_VERSION = 3
 
 def generatePredata(campaignId, progressCallback=None):
     captureIds = getCaptureIdsByCampaignId(campaignId)
@@ -90,6 +98,8 @@ def dataProcessing(data):
 
     ref_points = getUniqueCoordinatesByCampaignId(campaignId, len(ref_points_conf))
     ale_points = getUniqueCoordinatesByCampaignId(aleCampaignId, len(ale_points_conf))
+    trainingRotations = getConfiguredRotations(ref_points_conf)
+    evaluationRotations = getConfiguredRotations(ale_points_conf)
 
     if(len(ref_points)) < data['kRangeEnd']:
         ksRange.append(len(ref_points))
@@ -105,12 +115,24 @@ def dataProcessing(data):
         beaconMacs = processBeaconMacs(campaignId, aleCampaignId, protocol)
         if not beaconMacs:
             raise ValueError(f'No common beacons found for protocol {protocol}')
+        evaluationSamplePlan = buildEvaluationSamplePlan(
+            ale_points, ale_points_conf, beaconMacs, aleCampaignId, protocol
+        )
+        orientationHandling = buildOrientationHandling(
+            trainingRotations, evaluationRotations,
+            len(evaluationSamplePlan),
+            countConfiguredSamples(ale_points_conf),
+        )
         for channel in channels:
             for metric in metrics:
                 for algorithm in algorithms:
                     for kernel in kernels:
 
-                        taskId = taskToJson(method, protocol, channel, rssiSamples, algorithm, metric, ksRangeJson, kernel, cs, gammas, nus, Is, beaconMacs)
+                        taskId = taskToJson(
+                            method, protocol, channel, rssiSamples, algorithm,
+                            metric, ksRangeJson, kernel, cs, gammas, nus, Is,
+                            beaconMacs, orientationHandling
+                        )
                         
                         if not checkExistingMethodPrediction(campaignId, taskId):
 
@@ -122,14 +144,10 @@ def dataProcessing(data):
                                     'DeepLearning',
                                     'DeepLearningPyTorch',
                                 ):
-                                    aleatoryRotations = {
-                                        float(point['Rotation'])
-                                        for point in ale_points_conf.values()
-                                    }
                                     refRSSIMatrix = getDeepLearningRefPointsMatrix(
                                         ref_points, ref_points_conf, beaconMacs,
                                         campaignId, protocol, channel, rssiSamples,
-                                        aleatoryRotations
+                                        set(trainingRotations)
                                     )
                                 else:
                                     refRSSIMatrix = getRefPointsMatrix(
@@ -139,14 +157,29 @@ def dataProcessing(data):
 
                                 updateTaskHistory(campaignId, taskId, "Obteniendo matriz de puntos aleatorios...")
 
-                                aleRSSIMatrix= getAlePointsMatrix(ale_points, ale_points_conf, beaconMacs, aleCampaignId, protocol, channel, rssiSamples)
+                                aleRSSIMatrix = getAlePointsMatrix(
+                                    ale_points, ale_points_conf, beaconMacs,
+                                    aleCampaignId, protocol, channel,
+                                    rssiSamples, evaluationSamplePlan
+                                )
 
                                 updateTaskHistory(campaignId, taskId, "Aplicando método de posicionamiento...")
 
                                 predicted_points = applyMethod(refRSSIMatrix, aleRSSIMatrix, method, metric, algorithm, ksRange, kernel, cs, gammas, nus, Is, taskId)
                                 validateFiniteResults(predicted_points, 'Predicted_points')
 
-                                mean_error = calculateError(aleRSSIMatrix, predicted_points)
+                                fusedAleMatrix, predicted_points = (
+                                    fusePredictionsByPointMedian(
+                                        aleRSSIMatrix, predicted_points,
+                                        evaluationSamplePlan
+                                    )
+                                )
+                                validateFiniteResults(
+                                    predicted_points, 'Fused predicted_points'
+                                )
+                                mean_error = calculateError(
+                                    fusedAleMatrix, predicted_points
+                                )
                                 validateFiniteResults(mean_error, 'Mean_error')
 
                                 createMethodPrediction(
@@ -193,9 +226,8 @@ def processDeepLearningHybrid(data):
     alePoints = getUniqueCoordinatesByCampaignId(
         aleCampaignId, len(aleConfiguration)
     )
-    allowedRotations = {
-        float(point['Rotation']) for point in aleConfiguration.values()
-    }
+    trainingRotations = getConfiguredRotations(refConfiguration)
+    evaluationRotations = getConfiguredRotations(aleConfiguration)
     completedTasks = 0
     skippedTasks = 0
     failedTasks = 0
@@ -204,9 +236,18 @@ def processDeepLearningHybrid(data):
         beaconMacs = processBeaconMacs(campaignId, aleCampaignId, protocol)
         if not beaconMacs:
             raise ValueError(f'No common beacons for protocol {protocol}')
+        evaluationSamplePlan = buildEvaluationSamplePlan(
+            alePoints, aleConfiguration, beaconMacs, aleCampaignId, protocol
+        )
+        orientationHandling = buildOrientationHandling(
+            trainingRotations, evaluationRotations,
+            len(evaluationSamplePlan),
+            countConfiguredSamples(aleConfiguration),
+        )
         taskId = taskToJson(
             'DeepLearningHybrid', protocol, '37+38+39', rssiSamples,
-            0, 0, '[0, 0]', 0, [None], [None], [None], [None], beaconMacs
+            0, 0, '[0, 0]', 0, [None], [None], [None], [None],
+            beaconMacs, orientationHandling
         )
         if checkExistingMethodPrediction(campaignId, taskId):
             skippedTasks += 1
@@ -220,7 +261,7 @@ def processDeepLearningHybrid(data):
             trainMatrices = [
                 getDeepLearningRefPointsMatrix(
                     refPoints, refConfiguration, beaconMacs, campaignId,
-                    protocol, channel, rssiSamples, allowedRotations
+                    protocol, channel, rssiSamples, set(trainingRotations)
                 ) for channel in channels
             ]
             updateTaskHistory(
@@ -230,7 +271,7 @@ def processDeepLearningHybrid(data):
             testMatrices = [
                 getAlePointsMatrix(
                     alePoints, aleConfiguration, beaconMacs, aleCampaignId,
-                    protocol, channel, rssiSamples
+                    protocol, channel, rssiSamples, evaluationSamplePlan
                 ) for channel in channels
             ]
             updateTaskHistory(
@@ -240,7 +281,15 @@ def processDeepLearningHybrid(data):
                 trainMatrices, testMatrices, channels, taskId
             )
             validateFiniteResults(predictedPoints, 'Predicted_points')
-            meanError = calculateError(testMatrices[0], predictedPoints)
+            fusedTestMatrix, predictedPoints = (
+                fusePredictionsByPointMedian(
+                    testMatrices[0], predictedPoints, evaluationSamplePlan
+                )
+            )
+            validateFiniteResults(
+                predictedPoints, 'Fused predicted_points'
+            )
+            meanError = calculateError(fusedTestMatrix, predictedPoints)
             validateFiniteResults(meanError, 'Mean_error')
             createMethodPrediction(
                 campaignId, taskId,
@@ -366,7 +415,7 @@ def getRefPointsMatrix(points, points_conf, beaconMacs, campaignId, protocol, ch
         x = float(point_values['X'])
         y = float(point_values['Y'])
         z = float(point_values['Z'])
-        rotations = point_values['Rotations']
+        rotations = getPointRotations(point_values)
 
         for j, mac in enumerate(beaconMacs):
             maximumSamples = []
@@ -388,33 +437,152 @@ def getRefPointsMatrix(points, points_conf, beaconMacs, campaignId, protocol, ch
     return refPointsMatrix
 
 
-def getAlePointsMatrix(points, points_conf, beaconMacs, campaignId, protocol, channel, rssiSamples):
+def getPointRotations(pointValues):
+    rotations = pointValues.get('Rotations')
+    if rotations is None:
+        rotations = [pointValues['Rotation']]
 
+    uniqueRotations = []
+    for rotation in rotations:
+        numericRotation = float(rotation)
+        if numericRotation not in uniqueRotations:
+            uniqueRotations.append(numericRotation)
+
+    if not uniqueRotations:
+        raise ValueError('At least one orientation must be configured')
+    return uniqueRotations
+
+
+def getConfiguredRotations(pointsConfiguration):
+    rotations = {
+        rotation
+        for pointValues in pointsConfiguration.values()
+        for rotation in getPointRotations(pointValues)
+    }
+    if not rotations:
+        raise ValueError('No orientations found in point configuration')
+    return sorted(rotations)
+
+
+def countConfiguredSamples(pointsConfiguration):
+    return sum(
+        len(getPointRotations(pointValues))
+        for pointValues in pointsConfiguration.values()
+    )
+
+
+def buildEvaluationSamplePlan(
+        points, pointsConfiguration, beaconMacs, campaignId, protocol):
+    samplePlan = []
+    for pointIndex, (point, pointValues) in enumerate(
+            zip(points, pointsConfiguration.values())):
+        for rotation in getPointRotations(pointValues):
+            if hasPredataForFingerprint(
+                campaignId, rotation, beaconMacs, protocol,
+                point['x'], point['y'], point['z']
+            ):
+                samplePlan.append((pointIndex, rotation))
+
+    if not samplePlan:
+        raise ValueError(
+            'No valid evaluation captures were found for the configured '
+            'orientations'
+        )
+    return samplePlan
+
+
+def buildOrientationHandling(
+        trainingRotations, evaluationRotations, validSamples, totalSamples):
+    return {
+        'version': ORIENTATION_PROCESSING_VERSION,
+        'mode': 'multi-orientation-median-fusion',
+        'trainingRotations': list(trainingRotations),
+        'evaluationRotations': list(evaluationRotations),
+        'evaluationAggregation': 'coordinate-wise median prediction per point',
+        'generalResultUnit': 'physical evaluation point',
+        'validEvaluationCaptures': validSamples,
+        'configuredEvaluationCaptures': totalSamples,
+        'excludedEmptyEvaluationCaptures': totalSamples - validSamples,
+    }
+
+
+def fusePredictionsByPointMedian(
+        evaluationMatrix, predictedPoints, evaluationSamplePlan):
+    evaluationMatrix = np.asarray(evaluationMatrix, dtype=float)
+    if len(evaluationMatrix) != len(evaluationSamplePlan):
+        raise ValueError(
+            'Evaluation matrix and orientation sample plan are not aligned'
+        )
+
+    rowIndexesByPoint = {}
+    for rowIndex, (pointIndex, _) in enumerate(evaluationSamplePlan):
+        rowIndexesByPoint.setdefault(pointIndex, []).append(rowIndex)
+
+    fusedTargets = []
+    for rowIndexes in rowIndexesByPoint.values():
+        targets = evaluationMatrix[rowIndexes, -3:]
+        if not np.allclose(targets, targets[0]):
+            raise ValueError(
+                'Orientation samples for a point have different targets'
+            )
+        fusedTargets.append(targets[0])
+
+    fusedPredictions = {}
+    for key, values in predictedPoints.items():
+        predictions = np.asarray(values, dtype=float)
+        if len(predictions) != len(evaluationSamplePlan):
+            raise ValueError(
+                'Predictions and orientation sample plan are not aligned'
+            )
+        if predictions.ndim != 2 or predictions.shape[1] != 3:
+            raise ValueError('Predictions must contain x, y and z coordinates')
+
+        fusedKey = f'{key}[orientationFusion=coordinate-median]'
+        fusedPredictions[fusedKey] = [
+            np.median(predictions[rowIndexes], axis=0).tolist()
+            for rowIndexes in rowIndexesByPoint.values()
+        ]
+
+    return np.asarray(fusedTargets, dtype=float), fusedPredictions
+
+
+def getAlePointsMatrix(
+        points, points_conf, beaconMacs, campaignId, protocol, channel,
+        rssiSamples, evaluationSamplePlan=None):
     coordinates = 3
     cols = len(beaconMacs) + coordinates
-    rows = len(points)
+    configurationValues = list(points_conf.values())
+    if evaluationSamplePlan is None:
+        evaluationSamplePlan = [
+            (pointIndex, rotation)
+            for pointIndex, pointValues in enumerate(configurationValues)
+            for rotation in getPointRotations(pointValues)
+        ]
 
-    alePointsMatrix = np.full((rows, cols), MISSING_RSSI)
-    
-    for i, (point, point_values) in enumerate(zip(points, points_conf.values())):
+    rows = []
+    for pointIndex, rotation in evaluationSamplePlan:
+        point = points[pointIndex]
+        point_values = configurationValues[pointIndex]
         x = float(point_values['X'])
         y = float(point_values['Y'])
         z = float(point_values['Z'])
-        rotation = float(point_values['Rotation'])
-
-        
+        row = np.full(cols, MISSING_RSSI)
         for j, mac in enumerate(beaconMacs):
             matchSamples = getFilteredPredataSamples(campaignId, rssiSamples, rotation, mac, protocol, channel, point['x'], point['y'], point['z'])
 
             if matchSamples:
                 maximumSample = max(matchSamples, key=lambda sample: sample.RSSI)
-                alePointsMatrix[i,j] = maximumSample.RSSI
+                row[j] = maximumSample.RSSI
 
-        alePointsMatrix[i,cols - 3] = x
-        alePointsMatrix[i,cols - 2] = y
-        alePointsMatrix[i,cols - 1] = z
+        row[cols - 3] = x
+        row[cols - 2] = y
+        row[cols - 1] = z
+        rows.append(row)
 
-    return alePointsMatrix
+    if not rows:
+        raise ValueError('Evaluation matrix is empty')
+
+    return np.asarray(rows, dtype=float)
 
 def processBeaconMacs(referenceCampaignId, aleatoryCampaignId, protocol):
     aleatoryBeaconMacs = set(getObservedMacsByCampaignAndProtocol(
@@ -427,7 +595,10 @@ def processBeaconMacs(referenceCampaignId, aleatoryCampaignId, protocol):
     return sorted(aleatoryBeaconMacs & referenceBeaconMacs)
 
 
-def taskToJson(methods, protocols, channels, rssiSamples, algorithm, metric, ksRange, kernel, cs, gammas, nus, Is, beaconMacs=None):
+def taskToJson(
+        methods, protocols, channels, rssiSamples, algorithm, metric, ksRange,
+        kernel, cs, gammas, nus, Is, beaconMacs=None,
+        orientationHandling=None):
     taskDescription = {
         'method': methods,
         'protocol': protocols,
@@ -446,6 +617,8 @@ def taskToJson(methods, protocols, channels, rssiSamples, algorithm, metric, ksR
     if beaconMacs is not None:
         taskDescription['beaconCount'] = len(beaconMacs)
         taskDescription['beaconMacs'] = list(beaconMacs)
+    if orientationHandling is not None:
+        taskDescription['orientationHandling'] = orientationHandling
 
     if methods == 'DeepLearning':
         taskDescription['deepLearning'] = getDeepLearningConfiguration()

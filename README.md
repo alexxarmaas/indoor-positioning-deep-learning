@@ -104,14 +104,14 @@ Version control and repository hosting used to maintain code integrity, track ch
 
 The DeepLearning method is an ensemble of multilayer perceptrons for RSSI fingerprint regression. It uses the same source signals, aleatory evaluation points, prediction storage, and 3D Euclidean error metric as WKNN.
 
-- Training data: one fingerprint per reference capture whose rotation matches the aleatory evaluation, plus a strongest-signal aggregate repeated six times to balance daily variation with the evaluation distribution.
-- Hidden layers: 64 and 32 neurons with Tanh activation.
+- Training data: one fingerprint per real reference capture from every configured orientation. Synthetic strongest-signal aggregate repetitions are disabled.
+- Hidden layers: configurations are selected automatically from the candidates implemented by the backend.
 - Optimizer: Adam with early stopping for full campaigns; L-BFGS remains the fallback for very small datasets.
 - Preprocessing: missing RSSI values become `-110 dBm`; inputs and target coordinates are standardized independently.
 - Reproducibility: deterministic seed 45 and L2 regularization alpha 0.01.
 - Dependencies: no new package is required; the implementation uses scikit-learn already listed in `IPSCM/requirements.txt`.
 
-On the aggregated application campaign, using iBeacon, channel 37, unlimited samples, and the configured 0-degree aleatory captures, the model obtained 1.705 m mean error, 1.354 m median, and 2.738 m P90. The best WKNN result across k=1..20 was 2.025 m, 1.543 m, and 2.962 m respectively (k=11, Manhattan distance). Deep Learning reduced these three errors by 15.8%, 12.2%, and 7.6%. This is a campaign-specific benchmark rather than a guarantee for every protocol/channel combination.
+Evaluation configurations may define one legacy Rotation value or a comma-separated Rotations list. The application predicts every valid configured orientation and stores one final result per physical point by applying a coordinate-wise median to those predictions.
 
 The SQLite files in `Campañas/` are source datasets and are not discovered automatically at startup. A single import now accepts one aleatory database followed by any number of reference databases. The reference databases are normalized to the common point map from the `.conf` file and stored in one visible campaign, so measurements from every collection day contribute to the same fingerprint. Upload the files in this order:
 

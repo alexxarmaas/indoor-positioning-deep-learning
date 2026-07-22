@@ -30,7 +30,21 @@ def readAlePointsConf(file):
             point['X'] = config.get(section, 'X')
             point['Y'] = config.get(section, 'Y')
             point['Z'] = config.get(section, 'Z')
-            point['Rotation'] = config.getfloat(section, 'Rotation')
+            if config.has_option(section, 'Rotations'):
+                rotations = config.get(section, 'Rotations')
+                point['Rotations'] = [
+                    float(rotation.strip())
+                    for rotation in rotations.split(',')
+                    if rotation.strip()
+                ]
+                if not point['Rotations']:
+                    raise ValueError(
+                        f'{section} must define at least one rotation'
+                    )
+            else:
+                # Backwards compatibility with existing single-orientation
+                # IPSCampaign configurations.
+                point['Rotation'] = config.getfloat(section, 'Rotation')
             points[section] = point
 
     return json.dumps(points)

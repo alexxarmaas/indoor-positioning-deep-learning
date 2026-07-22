@@ -1,5 +1,6 @@
 import json
 import unittest
+from io import BytesIO
 from types import SimpleNamespace
 from unittest.mock import ANY, call, patch
 
@@ -9,6 +10,7 @@ from services.DataProcessService import (
     getAlePointsMatrix,
     getRefPointsMatrix,
 )
+from services.ConfigReaderService import readAlePointsConf
 from services.ImportProgressService import completeImport, getImportProgress, releaseImport, startImport, updateImportProgress
 from services.UploadService import uploadCampaign
 
@@ -86,6 +88,62 @@ class CampaignAggregationTest(unittest.TestCase):
 
         self.assertEqual(matrix[0, 0], -42.0)
         self.assertEqual(matrix[0, 1], MISSING_RSSI)
+
+    @patch('services.DataProcessService.getFilteredPredataSamples')
+    def test_aleatory_matrix_contains_one_row_per_configured_orientation(
+        self, getSamples
+    ):
+        getSamples.side_effect = [
+            [SimpleNamespace(RSSI=-40)],
+            [SimpleNamespace(RSSI=-50)],
+            [SimpleNamespace(RSSI=-60)],
+            [SimpleNamespace(RSSI=-70)],
+        ]
+        points = [{'x': 1.0, 'y': 2.0, 'z': 0.0}]
+        configuration = {
+            'POINT_0': {
+                'X': '1', 'Y': '2', 'Z': '0',
+                'Rotations': [0.0, 90.0, 180.0, 270.0],
+            }
+        }
+
+        matrix = getAlePointsMatrix(
+            points, configuration, ['visible'], 2,
+            'iBeacon', 37, 0
+        )
+
+        self.assertEqual(matrix.shape, (4, 4))
+        self.assertEqual(matrix[:, 0].tolist(), [-40, -50, -60, -70])
+        self.assertEqual(
+            [currentCall.args[2] for currentCall in getSamples.call_args_list],
+            [0.0, 90.0, 180.0, 270.0],
+        )
+        self.assertTrue(all(row == [1.0, 2.0, 0.0] for row in matrix[:, -3:].tolist()))
+
+    def test_aleatory_config_accepts_rotations_and_legacy_rotation(self):
+        multi = BytesIO(b"""
+[POINT_0]
+X = 1
+Y = 2
+Z = 0
+Rotations = 0, 90, 180, 270
+""")
+        legacy = BytesIO(b"""
+[POINT_0]
+X = 1
+Y = 2
+Z = 0
+Rotation = 90
+""")
+
+        multiConfig = json.loads(readAlePointsConf(multi))
+        legacyConfig = json.loads(readAlePointsConf(legacy))
+
+        self.assertEqual(
+            multiConfig['POINT_0']['Rotations'],
+            [0.0, 90.0, 180.0, 270.0],
+        )
+        self.assertEqual(legacyConfig['POINT_0']['Rotation'], 90.0)
 
     def test_one_visible_campaign_receives_all_reference_databases(self):
         point_configuration = json.dumps({
