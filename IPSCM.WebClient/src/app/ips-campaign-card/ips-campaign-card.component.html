@@ -29,7 +29,7 @@
                         </mat-option>
                       </mat-select>
                     </mat-form-field>
-                    <mat-form-field class="ml-3 formField">
+                    <mat-form-field *ngIf="!isTFGMethod" class="ml-3 formField">
                       <mat-label>Protocolo</mat-label>
                       <mat-select placeholder="Sin selección" multiple formControlName="protocols">
                         <mat-option class="mat-option" value="allProtocols" (click)="selectAllProtocols()">Seleccionar todos</mat-option>
@@ -38,7 +38,7 @@
                         </mat-option>
                       </mat-select>
                     </mat-form-field>
-                    <mat-form-field *ngIf="selectedMethod !== 'DeepLearningHybrid'" class="ml-3 formField">
+                    <mat-form-field *ngIf="selectedMethod !== 'DeepLearningHybrid' && !isTFGMethod" class="ml-3 formField">
                       <mat-label>Canal</mat-label>
                       <mat-select placeholder="Sin selección" multiple formControlName="channels">
                         <mat-option class="mat-option" value="allChannels" (click)="selectAllChannels()">Seleccionar todos</mat-option>
@@ -47,7 +47,7 @@
                         </mat-option>
                       </mat-select>
                     </mat-form-field>
-                    <mat-form-field class="ml-3 formField">
+                    <mat-form-field *ngIf="!isTFGMethod" class="ml-3 formField">
                       <mat-label>Muestras</mat-label>
                       <mat-select placeholder="Sin selección" formControlName="sample">
                         <mat-option [value]="-1">Sin límite</mat-option>
@@ -56,7 +56,12 @@
                         </mat-option>
                       </mat-select>
                     </mat-form-field>
-                    <div class="field" *ngIf="WKNNparams">
+                    <p *ngIf="isTFGMethod" class="help">
+                       TFG: mediana RSSI por captura (8 MAC fijas, todos los canales);
+                       referencia y evaluación separadas. El wKNN TFG reutiliza
+                       el algoritmo original con las mismas ocho entradas RSSI.
+                     </p>
+                     <div class="field" *ngIf="WKNNparams">
                       <mat-form-field class="formField">
                         <mat-label>Métrica</mat-label>
                         <mat-select placeholder="Sin selección" multiple formControlName="metrics">
