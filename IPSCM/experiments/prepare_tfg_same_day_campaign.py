@@ -124,9 +124,9 @@ def main():
 
     odd_points = list(range(1, 61, 2))
     even_points = list(range(2, 61, 2))
-    write_config(args.output / "ref_points.ini", odd_points, grid, orientations)
-    write_config(args.output / "ale_points.ini", even_points, grid, orientations)
-    (args.output / "ble.ini").write_text(
+    write_config(args.output / "03_ref_points.conf", odd_points, grid, orientations)
+    write_config(args.output / "02_ale_points.conf", even_points, grid, orientations)
+    (args.output / "01_ble.conf").write_text(
         "[BLE]\nDuration = 0\n\n[Orientator]\nRotations = 4\n",
         encoding="utf-8",
     )
