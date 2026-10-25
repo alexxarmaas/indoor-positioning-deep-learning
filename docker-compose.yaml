@@ -2,7 +2,6 @@ name: ipscm
 services:
     server:
       image: simonrusu97/ipscmback
-      gpus: all
       environment:
         CUBLAS_WORKSPACE_CONFIG: ':4096:8'
       build: 
