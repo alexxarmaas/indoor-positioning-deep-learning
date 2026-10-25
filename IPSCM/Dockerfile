@@ -11,7 +11,7 @@ COPY requirements.txt .
 RUN pip install --upgrade pip
 
 # Instalamos las dependencias especificadas en requirements.txt
-RUN pip install --no-cache-dir torch==2.6.0 --index-url https://download.pytorch.org/whl/cu124
+RUN pip install --no-cache-dir torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiamos el resto del código de la aplicación
