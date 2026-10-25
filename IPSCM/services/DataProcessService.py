@@ -28,6 +28,8 @@ from services.MethodsService import (
     validateFiniteResults,
 )
 from controllers.TaskHistoryCrud import createTaskHistory, updateTaskHistory
+from services.TFGFeaturesService import build_tfg_campaign_matrix, load_beacon_mapping
+from services.TFGPositioningService import TFG_METHODS, TFG_MLP_CONFIG
 
 
 ORIENTATION_PROCESSING_VERSION = 3
@@ -74,6 +76,8 @@ def dataProcessing(data):
     campaignId = data['campaign']
     campaignName = data['campaignName']
     method = data['method']
+    if method in TFG_METHODS:
+        return processTFGMethod(data)
     protocols = data['protocols']
     channels = data['channels']
     rssiSamples = data['sample']
@@ -632,3 +636,121 @@ def taskToJson(
             getHybridDeepLearningConfiguration()
         )
     return json.dumps(taskDescription)
+
+
+def processTFGMethod(data):
+    """Comparación TFG con huellas por captura, independientes de los canales UI.
+
+    Este camino se mantiene separado del pipeline existente para no modificar
+    WKNN, SVR, DeepLearning o los experimentos multicanal del fork.
+    """
+    campaign_id = int(data["campaign"])
+    campaign_name = data["campaignName"]
+    method = data["method"]
+    evaluation_id = getRelatedCampaignIdByCampaignId(campaign_id)
+    if campaign_id == evaluation_id:
+        raise ValueError("Referencia y evaluación no pueden ser la misma campaña")
+
+    train, train_ids = build_tfg_campaign_matrix(campaign_id)
+    test, test_ids = build_tfg_campaign_matrix(evaluation_id)
+    if set(train_ids).intersection(test_ids):
+        raise ValueError("Fuga de datos: capturas compartidas entre entrenamiento y evaluación")
+
+    coordinate_key = lambda row: tuple(np.round(row[-3:], 5))
+    shared_coords = len({coordinate_key(row) for row in train}.intersection(
+        {coordinate_key(row) for row in test}
+    ))
+    point_indices = {}
+    evaluation_plan = []
+    for row in test:
+        key = coordinate_key(row)
+        if key not in point_indices:
+            point_indices[key] = len(point_indices)
+        evaluation_plan.append((point_indices[key], None))
+
+    if method == "WKNN_TFG":
+        metrics = data.get("metrics") or ["euclidean"]
+        algorithms = data.get("algorithms") or ["brute"]
+        k_start = int(data.get("kRangeStart") or 1)
+        k_end = min(int(data.get("kRangeEnd") or k_start), len(train))
+        if k_start < 1 or k_end < k_start:
+            raise ValueError("Rango de k incompatible con el número de capturas de referencia")
+    else:
+        metrics, algorithms, k_start, k_end = [0], [0], 0, 0
+
+    mapping = load_beacon_mapping()
+    completed, skipped, failed = 0, 0, 0
+    failures = []
+
+    for metric in metrics:
+        for algorithm in algorithms:
+            description = {
+                "method": method,
+                "protocol": "ALL",
+                "channel": "ALL",
+                "rssiSample": -1,
+                "algorithm": algorithm,
+                "metric": metric,
+                "ksRange": json.dumps([k_start, k_end]),
+                "tfgFeatures": {
+                    "version": 1,
+                    "unit": "capture",
+                    "rssiAggregation": "median-by-MAC-across-all-channels",
+                    "missingRSSI": -100,
+                    "target": "xy-with-constant-z",
+                    "evaluationAggregation": "median-prediction-per-physical-point",
+                    "beaconMapping": mapping,
+                    "referenceCampaignId": campaign_id,
+                    "evaluationCampaignId": evaluation_id,
+                    "nReferenceCaptures": len(train),
+                    "nEvaluationCaptures": len(test),
+                    "sharedReferenceEvaluationCoordinates": shared_coords,
+                    "modelConfig": TFG_MLP_CONFIG if method != "WKNN_TFG" else None,
+                },
+            }
+            task_id = json.dumps(description, sort_keys=True)
+            if checkExistingMethodPrediction(campaign_id, task_id):
+                skipped += 1
+                continue
+            started_at = datetime.now()
+            try:
+                createTaskHistory(
+                    campaign_id, campaign_name,
+                    "Evaluando fingerprints por captura (TFG)...",
+                    task_id, started_at
+                )
+                predicted = applyMethod(
+                    train, test, method, metric, algorithm,
+                    [k_start, k_end], 0, [None], [None], [None], [None],
+                    task_id
+                )
+                validateFiniteResults(predicted, "TFG predicted points")
+                targets, fused = fusePredictionsByPointMedian(
+                    test, predicted, evaluation_plan
+                )
+                validateFiniteResults(fused, "TFG fused predicted points")
+                errors = calculateError(targets, fused)
+                validateFiniteResults(errors, "TFG errors")
+                createMethodPrediction(
+                    campaign_id, task_id,
+                    json.dumps(fused, allow_nan=False),
+                    json.dumps(errors, allow_nan=False)
+                )
+                updateTaskHistory(campaign_id, task_id, "Completado", datetime.now())
+                completed += 1
+            except Exception as exc:
+                failed += 1
+                failures.append(str(exc))
+                updateTaskHistory(campaign_id, task_id, "Error")
+                print("TFG method processing error:", str(exc))
+
+    return {
+        "completedTasks": completed,
+        "skippedTasks": skipped,
+        "failedTasks": failed,
+        "errors": failures,
+        "referenceCaptures": len(train),
+        "evaluationCaptures": len(test),
+        "evaluationPhysicalPoints": len(point_indices),
+        "overlappingCoordinates": shared_coords,
+    }
