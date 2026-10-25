@@ -39,7 +39,7 @@ def build_tfg_fingerprint(signals, beacon_mapping=None):
     La agregación RSSI es la mediana por baliza
     """
 
-    mapping = (beacon_mapping if beacon_mapping is not None else load_beacon_mapping)
+    mapping = (beacon_mapping if beacon_mapping is not None else load_beacon_mapping())
     mac_to_beacon = {mac.lower() : beacon for beacon, mac in mapping.items()}
     readings = {beacon: [] for beacon in BEACONS}
 
@@ -52,7 +52,7 @@ def build_tfg_fingerprint(signals, beacon_mapping=None):
             rssi = signal.RSSI
 
         if mac is None:
-            compile
+            continue
         
         beacon = mac_to_beacon.get(str(mac).strip().lower())
 
@@ -77,3 +77,36 @@ def build_tfg_fingerprint(signals, beacon_mapping=None):
         fingerprint[f"presence_{beacon}"] = int(detected)
 
     return np.asarray([[fingerprint[column] for column in RSSI_COLUMNS + PRESENCE_COLUMNS]], dtype=float)
+
+def build_tfg_dataset(captures, signals):
+
+    signals_by_capture = {}
+
+    for signal in signals:
+        capture_id = signal.Id_capture
+
+        if capture_id not in signals_by_capture:
+            signals_by_capture[capture_id] = []
+
+        signals_by_capture[capture_id].append({"Mac": signal.Mac, "RSSI": signal.RSSI})
+    
+    X = []
+    y = []
+    capture_ids = []
+
+    for capture in sorted(captures, key=lambda c: c.Id):
+        capture_signals = signals_by_capture.get(capture.Id, [])
+
+        if not capture_signals:
+            continue
+        
+        fingerprint = build_tfg_fingerprint(capture_signals)
+
+        X.append(fingerprint[0])
+        y.append([capture.Position_x, capture.Position_y])
+        capture_ids.append(capture.Id)
+    
+    if not X:
+        raise ValueError("No se encontraron capturas con lecturas BLE")
+
+    return (np.asarray(X, dtype=float), np.asarray(y,dtype=float), np.asarray(capture_ids))
