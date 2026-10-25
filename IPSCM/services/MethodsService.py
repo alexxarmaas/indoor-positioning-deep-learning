@@ -8,6 +8,7 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.multioutput import MultiOutputRegressor
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
+from services.TFGPositioningService import applyTFGMLPmethod, tfg_wknn_matrix
 from services.PyTorchPositioningService import (
     getPyTorchConfiguration,
     predictWithPyTorchEnsemble,
@@ -50,6 +51,15 @@ def applyMethod(data_train, data_test, method, metrics, algorithms, ks_range, ke
     match method:
         case "WKNN":
             return applyWKNNmethod(data_train, data_test, metrics, algorithms, ks_range, description)
+        case "WKNN_TFG":
+            return applyWKNNmethod(
+                tfg_wknn_matrix(data_train), tfg_wknn_matrix(data_test),
+                metrics, algorithms, ks_range, description
+            )
+        case "MLP_TFG_ROBUST":
+            return applyTFGMLPmethod(data_train, data_test, description, use_mask=False)
+        case "MLP_TFG_MASK":
+            return applyTFGMLPmethod(data_train, data_test, description, use_mask=True)
         case "DeepLearning":
             return applyDeepLearningMethod(data_train, data_test, description)
         case 'DeepLearningPyTorch':
@@ -493,7 +503,7 @@ def getKeyDescription(description):
     excludedFields = {
         'ksRange', 'cs', 'Is', 'nus', 'gammas', 'deepLearning',
         'deepLearningPyTorch', 'deepLearningHybrid', 'beaconCount',
-        'beaconMacs', 'orientationHandling',
+        'beaconMacs', 'orientationHandling', 'tfgFeatures',
     }
 
     for field, value in key.items():
