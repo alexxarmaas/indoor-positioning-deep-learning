@@ -88,7 +88,7 @@ class TFGDataProcessServiceTest(unittest.TestCase):
             })
             self.assertEqual(result["completedTasks"], 1)
             self.assertEqual(apply.call_args.args[2], "WKNN_TFG")
-            self.assertEqual(apply.call_args.args[6], [2, 3])
+            self.assertEqual(apply.call_args.args[5], [2, 3])
 
 
 if __name__ == "__main__":
