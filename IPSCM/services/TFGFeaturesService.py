@@ -94,6 +94,7 @@ def build_tfg_campaign_matrix(campaign_id):
         .yield_per(2000)
     )
 
+    mapping = load_beacon_mapping()
     matrix = []
     capture_ids = []
     current_id = None
@@ -106,7 +107,7 @@ def build_tfg_campaign_matrix(campaign_id):
         xy_z = np.asarray(coordinates, dtype=float)
         if not np.isfinite(xy_z).all():
             raise ValueError(f"Coordenadas no finitas en captura {current_id}")
-        features = build_tfg_fingerprint(signals)[0]
+        features = build_tfg_fingerprint(signals, mapping)[0]
         matrix.append(np.concatenate((features, xy_z)))
         capture_ids.append(int(current_id))
 
