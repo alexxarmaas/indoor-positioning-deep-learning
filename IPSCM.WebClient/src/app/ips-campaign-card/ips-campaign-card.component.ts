@@ -41,6 +41,9 @@ export class IpsCampaignCardComponent implements OnDestroy {
 
 
   selectedMethod: any;
+  get isTFGMethod(): boolean {
+    return ['WKNN_TFG', 'MLP_TFG_ROBUST', 'MLP_TFG_MASK'].includes(this.selectedMethod);
+  }
   form!: FormGroup;
 
 
@@ -49,6 +52,7 @@ export class IpsCampaignCardComponent implements OnDestroy {
   
     ngOnInit(){
       this.methods.splice(2, 0, 'DeepLearningPyTorch', 'DeepLearningHybrid');
+      this.methods.splice(4, 0, 'WKNN_TFG', 'MLP_TFG_ROBUST', 'MLP_TFG_MASK');
       this.apiService.getCampaignImagesById(this.campaign.Id).subscribe((response: Blob) => {
         if(response != null){
         const zipImages = new JSZip();
@@ -186,6 +190,14 @@ export class IpsCampaignCardComponent implements OnDestroy {
     
         switch(this.selectedMethod){
           case "WKNN":
+          case "WKNN_TFG":
+            if (this.isTFGMethod) {
+              this.form.get('protocols')?.setValue(this.protocols);
+              this.form.get('channels')?.setValue(this.channels);
+              this.form.get('sample')?.setValue(-1);
+              this.form.get('metrics')?.setValue(['euclidean']);
+              this.form.get('algorithms')?.setValue(['brute']);
+            }
             this.WKNNparams = true;
             this.form.get('cStep')?.setValidators(null);
             this.form.get('nuStep')?.setValidators(null);
@@ -197,6 +209,13 @@ export class IpsCampaignCardComponent implements OnDestroy {
           case "DeepLearning":
           case 'DeepLearningPyTorch':
           case 'DeepLearningHybrid':
+          case 'MLP_TFG_ROBUST':
+          case 'MLP_TFG_MASK':
+            if (this.isTFGMethod) {
+              this.form.get('protocols')?.setValue(this.protocols);
+              this.form.get('channels')?.setValue(this.channels);
+              this.form.get('sample')?.setValue(-1);
+            }
             if (this.selectedMethod === 'DeepLearningHybrid') {
               this.form.get('channels')?.setValue(this.channels);
             }
@@ -339,6 +358,7 @@ export class IpsCampaignCardComponent implements OnDestroy {
       switch(this.selectedMethod){
 
         case "WKNN":
+        case "WKNN_TFG":
             metric = this.form.get('metrics')?.value;
             algorithm = this.form.get('algorithms')?.value;
             kRangeStart = this.form.get('kRangeStart')?.value;
