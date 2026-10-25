@@ -43,6 +43,36 @@ Por eso la comparación de algoritmos sobre un mismo procesamiento debe usar
 permanece disponible, pero sus resultados no son directamente equivalentes
 al protocolo TFG.
 
+## Preparar automáticamente la campaña PR del 16 de abril
+
+Desde PowerShell, en la raíz del fork, ejecutar:
+
+```powershell
+python IPSCM/experiments/prepare_tfg_same_day_campaign.py --source ../tfg-ips/data/raw/toma_datos_16_4.sqlite3 --output Campañas/TFG_16_4
+```
+
+El script usa la misma cuadrícula canónica que
+`tfg-ips/scripts/07_same_day_evaluation.py`: las 60 posiciones
+se ordenan por `MIN(Capture.Id)`, entrenamos con los puntos físicos
+impares y evaluamos en los pares. La copia filtrada preserva las tablas
+SQLite necesarias y no altera el original.
+
+Aparecerán:
+- `tfg_reference_odd.sqlite3` (referencia PR).
+- `tfg_evaluation_even.sqlite3` (evaluación PR).
+- `01_ble.conf`, `02_ale_points.conf` y `03_ref_points.conf` en ese orden.
+- `manifest.json`, con conteos y SHA-256 del origen.
+
+En la página de importación de IPSCampaign selecciona como **puntos
+aleatorios** `tfg_evaluation_even.sqlite3`, como **referencia**
+`tfg_reference_odd.sqlite3` y como los **tres archivos de configuración**
+los `.conf` de arriba, exactamente en el orden `01`, `02`, `03`.
+La interfaz solo admite `.conf`, no `.ini`. Si se seleccionan en bloque,
+comprueba el orden en el resumen antes de guardar.
+
+`Duration=0` es un campo requerido por el importador y no modifica las
+lecturas BLE originales.
+
 ## Importar campañas
 
 1. Preparar **fuera del programa** las bases SQLite de referencia y evaluación,
