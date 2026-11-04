@@ -29,6 +29,7 @@ from services.MethodsService import (
 )
 from controllers.TaskHistoryCrud import createTaskHistory, updateTaskHistory
 
+from services.TFGDataService import load_tfg_campaign_dataset
 
 ORIENTATION_PROCESSING_VERSION = 3
 
@@ -69,6 +70,35 @@ def generatePredata(campaignId, progressCallback=None):
 
     if progressCallback:
         progressCallback(processedSignals, totalSignals)
+
+def getTFGCampaignMatrix(campaignId):
+
+    X, y, capture_ids = load_tfg_campaign_dataset(campaignId)
+    ordered_ids = [int(capture_id) for capture_id in capture_ids]
+    
+    captures = getCapturesById(ordered_ids)
+    capture_by_id = {int(capture.Id): capture for capture in captures}
+
+    if len(capture_by_id) != len(ordered_ids):
+        raise ValueError("No se han recuperado todas las capturas TFG")
+
+    z_values = np.asarray([float(capture_by_id[capture_id].Position_z) for capture_id in ordered_ids])
+
+    matrix = np.column_stack((X, y, z_values))
+
+    if matrix.shape[1] != 19 or not np.isfinite(matrix).all():
+        raise ValueError("Matriz TFG inválida")
+    
+    point_keys = [
+        (
+            float(capture_by_id[capture_id].Position_x),
+            float(capture_by_id[capture_id].Position_y),
+            float(capture_by_id[capture_id].Position_z)
+        )
+        for capture_id in ordered_ids
+    ]
+
+    return matrix, point_keys
 
 def dataProcessing(data):
     campaignId = data['campaign']

@@ -13,6 +13,7 @@ from services.PyTorchPositioningService import (
     predictWithPyTorchEnsemble,
 )
 
+from services.TFGPositioningService import apply_tfg_mlp_method
 
 DL_MODEL_CANDIDATES = (
     {
@@ -62,6 +63,10 @@ def applyMethod(data_train, data_test, method, metrics, algorithms, ks_range, ke
             return applyNuSVRmethod(data_train, data_test, kernel, cs, gammas, nus, description)
         case "LinearSVR":
             return applyLinearSVRmethod(data_train, data_test, Is, cs, description)
+        case "MLP_TFG_ROBUST":
+            return apply_tfg_mlp_method(data_train, data_test, description, use_mask=False)
+        case "MLP_TFG_MASK": 
+            return apply_tfg_mlp_method(data_train, data_test, description, use_mask=True)
 
 
 def inverseDistanceWeights(distances):

@@ -5,7 +5,8 @@ from types import SimpleNamespace
 import numpy as np
 
 from services.TFGFeaturesService import build_tfg_dataset
-from services.TFGPositioningService import build_tfg_mlp
+from services.TFGPositioningService import (build_tfg_mlp, apply_tfg_mlp_method)
+from services.MethodsService import applyMethod
 
 DB_PATH = Path("/tmp/toma_datos_16_4.sqlite3")
 
@@ -94,12 +95,55 @@ assert y_test.shape == (120, 2)
 assert np.isfinite(X_train).all()
 assert np.isfinite(X_test).all()
 assert np.isfinite(y_train).all()
-assert np.isfinite(y_train).all()
+assert np.isfinite(y_test).all()
 
 assert set(point_numbers[train_mask]).isdisjoint(set(point_numbers[test_mask]))
 
 print("Entrenamiento: ", X_train.shape)
 print("Evaluación: ", X_test.shape)
+
+z_values = np.asarray([
+    capture_mapping[int(capture_id)][2]
+    for capture_id in capture_ids
+])
+
+data_train = np.column_stack((
+    X_train, y_train, z_values[train_mask]
+))
+
+data_test = np.column_stack((
+    X_test, y_test, z_values[test_mask]
+))
+
+print("--- Prueba IPSCampaign ---")
+print("data_train: ", data_train.shape)
+print("data_test: ", data_test.shape)
+
+for use_mask in [False, True]:
+
+    method_name = ("MLP_TFG_MASK" if use_mask else "MLP_TFG_ROBUST")
+    results = applyMethod(
+        data_train=data_train, 
+        data_test=data_test,
+        method=method_name,
+        metrics=None, 
+        algorithms=None,
+        ks_range=None,
+        kernel=None,
+        cs=None, 
+        gammas=None,
+        nus=None,
+        Is=None, 
+        description="{}")
+        
+    predictions_xyz = np.asarray(results[method_name], dtype=float)
+
+    assert predictions_xyz.shape == (len(X_test), 3)
+    assert np.isfinite(predictions_xyz).all()
+
+    assert np.allclose(predictions_xyz[:, 2], z_values[train_mask][0])
+    print(f"{method_name}: {predictions_xyz.shape} OK")
+
 
 def calculate_metrics(y_true, y_pred):
 
@@ -125,6 +169,10 @@ for use_mask in [False, True]:
     model.fit(X_train, y_train)
 
     predictions = model.predict(X_test)
+
+    adapted_results = apply_tfg_mlp_method(data_train, data_test, "{}", use_mask=use_mask)
+    adapted_xy = np.asarray(adapted_results[model_name])[:, :2]
+    np.testing.assert_allclose(predictions, adapted_xy, rtol=1e-7, atol=1e-7)
 
     capture_metrics = calculate_metrics(y_test, predictions)
 
