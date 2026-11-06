@@ -93,6 +93,7 @@ def build_tfg_dataset(captures, signals):
     X = []
     y = []
     capture_ids = []
+    mapping = load_beacon_mapping()
 
     for capture in sorted(captures, key=lambda c: c.Id):
         capture_signals = signals_by_capture.get(capture.Id, [])
@@ -100,7 +101,9 @@ def build_tfg_dataset(captures, signals):
         if not capture_signals:
             continue
         
-        fingerprint = build_tfg_fingerprint(capture_signals)
+        fingerprint = build_tfg_fingerprint(capture_signals, mapping)
+        if not np.any(fingerprint[0, 8:16]):
+            continue
 
         X.append(fingerprint[0])
         y.append([capture.Position_x, capture.Position_y])

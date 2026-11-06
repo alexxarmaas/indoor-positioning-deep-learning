@@ -26,7 +26,7 @@ export class GraphicsComponent {
   accuracySummary: any[] = [];
   campaignFilteredPoints: any = [];
   campaoignFilteredErrors: any = [];
-  methods: string[] = ["WKNN", "DeepLearning", "SVR", "NuSVR", "LinearSVR"];
+  methods: string[] = ["WKNN", "DeepLearning", "SVR", "NuSVR", "LinearSVR", "MLP_TFG_ROBUST", "MLP_TFG_MASK"];
   protocols: string[] = ["Eddystone", "iBeacon"];
   channels: string[] = ["37", "38", "39"];
   selectAllProtocolsCheck: boolean = false;
@@ -48,7 +48,7 @@ export class GraphicsComponent {
   selectedMethod: any;
   form!: FormGroup;
 
-  ngOnInit(){
+  ngOnInit() {
     this.methods.splice(2, 0, 'DeepLearningPyTorch', 'DeepLearningHybrid');
     this.form = this.formBuilder.group({
       methods: ['', Validators.required],
@@ -73,61 +73,61 @@ export class GraphicsComponent {
     Chart.register(annotationPlugin);
   }
 
-  
-  constructor(private route: ActivatedRoute, private apiService: ApiService, private formBuilder: FormBuilder, private toastr: ToastrService){
+
+  constructor(private route: ActivatedRoute, private apiService: ApiService, private formBuilder: FormBuilder, private toastr: ToastrService) {
     this.route.queryParams.subscribe(params => {
-      if(params['id']){
+      if (params['id']) {
         this.campaignId = params['id'];
       }
-      if(params['name']){
+      if (params['name']) {
         this.campaignName = params['name'];
-        if(this.lineChartOptions){
+        if (this.lineChartOptions) {
           this.lineChartOptions.plugins = {
             ...this.lineChartOptions.plugins,
             title: {
               display: true,
               text: this.campaignName + " - Gráfica de precisión",
-              font:{
-                size:24
+              font: {
+                size: 24
               }
             }
           };
         }
 
-        if(this.pointsChartOptions){
+        if (this.pointsChartOptions) {
           this.pointsChartOptions.plugins = {
             ...this.pointsChartOptions.plugins,
             title: {
               display: true,
               text: this.campaignName + " - Gráfica de exactitud",
-              font:{
-                size:24
+              font: {
+                size: 24
               }
             }
           };
         }
 
-        if(params['alePoints']){
+        if (params['alePoints']) {
           this.alePoints = JSON.parse(params['alePoints']);
         }
       }
     })
 
-    this.apiService.getMethodPredictionsById(this.campaignId).subscribe(res=> {
-      
-      if(res != 0){
+    this.apiService.getMethodPredictionsById(this.campaignId).subscribe(res => {
+
+      if (res != 0) {
         this.campaignMethodPrediction = res
       }
     })
   }
-  
-  selectAllProtocols(){
+
+  selectAllProtocols() {
     const protocolsControl = this.form.get('protocols');
     const protocolsToggle = this.form.get('protocols')?.value;
 
     const allProtocols = this.protocols.slice();
-    
-    if(protocolsControl){
+
+    if (protocolsControl) {
       if (protocolsToggle.length == 1) {
         protocolsControl.setValue(allProtocols);
         this.selectAllProtocolsCheck = true;
@@ -138,13 +138,13 @@ export class GraphicsComponent {
     }
   }
 
-  selectAllChannels(){
+  selectAllChannels() {
     const channelsControl = this.form.get('channels');
     const channelsToggle = this.form.get('channels')?.value;
 
     const allChannels = this.channels.slice();
-    
-    if(channelsControl){
+
+    if (channelsControl) {
       if (channelsToggle.length == 1) {
         channelsControl.setValue(allChannels);
         this.selectAllChannelsCheck = true;
@@ -155,13 +155,13 @@ export class GraphicsComponent {
     }
   }
 
-  selectAllMetrics(){
+  selectAllMetrics() {
     const metricsControl = this.form.get('metrics');
     const metricsToggle = this.form.get('metrics')?.value;
 
     const allMetrics = this.metricParams.slice();
-    
-    if(metricsControl){
+
+    if (metricsControl) {
       if (metricsToggle.length == 1) {
         metricsControl.setValue(allMetrics);
         this.selectAllMetricsCheck = true;
@@ -172,13 +172,13 @@ export class GraphicsComponent {
     }
   }
 
-  selectAllAlgorithms(){
+  selectAllAlgorithms() {
     const algorithmsControl = this.form.get('algorithms');
     const algorithmsToggle = this.form.get('algorithms')?.value;
 
     const allAlgorithms = this.algorithmParams.slice();
-    
-    if(algorithmsControl){
+
+    if (algorithmsControl) {
       if (algorithmsToggle.length == 1) {
         algorithmsControl.setValue(allAlgorithms);
         this.selectAllAlgorithmsCheck = true;
@@ -189,13 +189,13 @@ export class GraphicsComponent {
     }
   }
 
-  selectAllKernels(){
+  selectAllKernels() {
     const kernelsControl = this.form.get('kernels');
     const kernelsToggle = this.form.get('kernels')?.value;
 
     const allKernels = this.kernelParams.slice();
-    
-    if(kernelsControl){
+
+    if (kernelsControl) {
       if (kernelsToggle.length == 1) {
         kernelsControl.setValue(allKernels);
         this.selectAllAlgorithmsCheck = true;
@@ -206,7 +206,7 @@ export class GraphicsComponent {
     }
   }
 
-  onMethodSelected(method: string){
+  onMethodSelected(method: string) {
     this.selectedMethod = method;
     this.validateAndClearFields();
 
@@ -215,7 +215,7 @@ export class GraphicsComponent {
     this.NuSVRparams = false;
     this.LinearSVRparams = false;
 
-    switch(this.selectedMethod){
+    switch (this.selectedMethod) {
       case "WKNN":
         this.WKNNparams = true;
         this.form.get('gamma')?.setValidators(null);
@@ -254,6 +254,19 @@ export class GraphicsComponent {
         this.form.get('gamma')?.setValidators(null);
         this.form.get('kernels')?.setValidators(null);
         break;
+      case 'MLP_TFG_ROBUST':
+      case 'MLP_TFG_MASK':
+        [
+          'protocols',
+          'channels',
+          'metrics',
+          'algorithms',
+          'gamma',
+          'kernels'
+        ].forEach(field => {
+          this.form.get(field)?.clearValidators();
+        });
+        break;
     }
 
     Object.keys(this.form?.controls).forEach(key => {
@@ -261,7 +274,7 @@ export class GraphicsComponent {
     });
   }
 
-  validateAndClearFields(){
+  validateAndClearFields() {
     this.form.get('methods')?.setValidators(Validators.required);
     this.form.get('protocols')?.setValidators(Validators.required);
     this.form.get('channels')?.setValidators(Validators.required);
@@ -275,69 +288,76 @@ export class GraphicsComponent {
     this.form.get('kernels')?.reset();
   }
 
-  onSVRGammaSelected(gamma: string){
+  onSVRGammaSelected(gamma: string) {
     this.SVRgammaRange = false;
 
-    if(gamma === "range"){
+    if (gamma === "range") {
       this.SVRgammaRange = true;
     }
   }
 
-  onNuSVRgammaSelected(gamma: string){
-      this.NuSVRgammaRange = false;
+  onNuSVRgammaSelected(gamma: string) {
+    this.NuSVRgammaRange = false;
 
-      if(gamma === "range"){
-        this.NuSVRgammaRange = true;
-      }
+    if (gamma === "range") {
+      this.NuSVRgammaRange = true;
+    }
   }
 
-  onFilterSelected(chartTipe:string){
+  onFilterSelected(chartTipe: string) {
     this.filteredData = [...this.campaignMethodPrediction];
 
+    const isTFG = [
+      'MLP_TFG_ROBUST',
+      'MLP_TFG_MASK'
+    ].includes(this.selectedMethod);
+
     this.filteredData = this.filterData(this.form.get('methods')?.value, "method", this.filteredData);
-    this.filteredData = this.filterData(this.form.get('protocols')?.value, "protocol", this.filteredData);
-    if (this.selectedMethod !== 'DeepLearningHybrid') {
+    if (!isTFG) { this.filteredData = this.filterData(this.form.get('protocols')?.value, "protocol", this.filteredData) };
+    if (!isTFG && this.selectedMethod !== 'DeepLearningHybrid') {
       this.filteredData = this.filterData(this.form.get('channels')?.value, "channel", this.filteredData);
     }
-    
-    switch(this.selectedMethod){
+
+    switch (this.selectedMethod) {
       case "WKNN":
         this.filteredData = this.filterData(this.form.get('metrics')?.value, "metric", this.filteredData);
         this.filteredData = this.filterData(this.form.get('algorithms')?.value, "algorithm", this.filteredData);
-        if(chartTipe == 'precision'){
+        if (chartTipe == 'precision') {
           this.filteredData = this.filterRange(this.filteredData, "WKNN", "Mean_error");
-        }else{
+        } else {
           this.filteredData = this.filterRange(this.filteredData, "WKNN", "Predicted_points");
         }
         break;
-      
+
       case 'DeepLearning':
       case 'DeepLearningPyTorch':
       case 'DeepLearningHybrid':
+      case 'MLP_TFG_ROBUST':
+      case 'MLP_TFG_MASK':
 
         break;
       case "SVR":
         this.filteredData = this.filterData(this.form.get('kernels')?.value, "kernel", this.filteredData);
-        if(chartTipe == 'precision'){
+        if (chartTipe == 'precision') {
           this.filteredData = this.filterRange(this.filteredData, "SVR", "Mean_error");
-        }else{
+        } else {
           this.filteredData = this.filterRange(this.filteredData, "SVR", "Predicted_points");
         }
         break;
-      
+
       case "NuSVR":
         this.filteredData = this.filterData(this.form.get('kernels')?.value, "kernel", this.filteredData);
-        if(chartTipe == 'precision'){
+        if (chartTipe == 'precision') {
           this.filteredData = this.filterRange(this.filteredData, "NuSVR", "Mean_error");
-        }else{
+        } else {
           this.filteredData = this.filterRange(this.filteredData, "NuSVR", "Predicted_points");
         }
         break;
-      
+
       case "LinearSVR":
-        if(chartTipe == 'precision'){
+        if (chartTipe == 'precision') {
           this.filteredData = this.filterRange(this.filteredData, "LinearSVR", "Mean_error");
-        }else{
+        } else {
           this.filteredData = this.filterRange(this.filteredData, "LinearSVR", "Predicted_points");
         }
         break;
@@ -359,26 +379,26 @@ export class GraphicsComponent {
       return;
     }
 
-    if(chartTipe === 'precision'){
+    if (chartTipe === 'precision') {
       let parsedData = this.parsePrecisionData();
       this.fillPrecisionData(parsedData);
-    } 
+    }
     else {
       let parsedData = this.parseAccuracyData();
       this.fillAccuracyData(parsedData);
     }
   }
 
-  filterData(filters: any, property: string, data: any[]): any[]{
+  filterData(filters: any, property: string, data: any[]): any[] {
     const filterArray = Array.isArray(filters) ? filters : [filters];
-    return data.filter((object:any) =>{
+    return data.filter((object: any) => {
       const methodDescription = JSON.parse(object.Method_description);
       return filterArray.some((filter: string) => filter === methodDescription[property].toString());
     })
   }
 
   filterRange(data: any[], rangeType: string, atribute: string): any[] {
-    
+
     return data.map((object: any) => {
       const kRangeStart = this.form.get('kRangeStart')?.value;
       const kRangeEnd = this.form.get('kRangeEnd')?.value;
@@ -397,7 +417,7 @@ export class GraphicsComponent {
       const filteredParam: any = {};
 
       Object.entries(objParam).forEach(([key, value]) => {
-        switch(rangeType){
+        switch (rangeType) {
           case 'WKNN':
 
             const matchesWKNN = parseInt(key.match(/k=(\d+)/)?.[1] || "", 10);
@@ -412,104 +432,104 @@ export class GraphicsComponent {
 
             if (matchesSVR) {
 
-                const cValue = parseFloat(matchesSVR[1]);
-                let gValue:any = matchesSVR[2];  
-        
-                const gValueIsNumber = !isNaN(parseFloat(gValue));
-        
-                if (gValueIsNumber) {
-                    gValue = parseFloat(gValue);
-                }
-        
-                let gValueInRange;
-                if(gamma === 'range' && gValueIsNumber){
-                    gValueInRange = gValue >= gRangeStart && gValue <= gRangeEnd;
-                } else if(gamma === 'auto' && gValue === 'auto'){
-                    gValueInRange = true;
-                }
-                else if(gamma === 'scale' && gValue === 'scale'){
-                    gValueInRange = true;
-                }
-        
-                if (
-                    cValue >= cRangeStart && cValue <= cRangeEnd &&
-                    gValueInRange) {
-                      filteredParam[key] = value;
-                }
-            }
-            break;
-  
-          case 'NuSVR':
-            const matchesNuSVR = key.match(/k=nu([\d.]+)_C([\d.]+)_G(\w+\.?\w*)/);
-            if (matchesNuSVR) {
-              const nuValue = parseFloat(matchesNuSVR[1]);
-              const cValue = parseFloat(matchesNuSVR[2]);
-              let gValue:any = matchesNuSVR[3];  
+              const cValue = parseFloat(matchesSVR[1]);
+              let gValue: any = matchesSVR[2];
 
               const gValueIsNumber = !isNaN(parseFloat(gValue));
 
               if (gValueIsNumber) {
                 gValue = parseFloat(gValue);
               }
-        
+
               let gValueInRange;
-              if(gamma === 'range' && gValueIsNumber){
+              if (gamma === 'range' && gValueIsNumber) {
                 gValueInRange = gValue >= gRangeStart && gValue <= gRangeEnd;
-              } else if(gamma === 'auto' && gValue === 'auto'){
+              } else if (gamma === 'auto' && gValue === 'auto') {
                 gValueInRange = true;
               }
-              else if(gamma === 'scale' && gValue === 'scale'){
+              else if (gamma === 'scale' && gValue === 'scale') {
                 gValueInRange = true;
               }
-        
+
+              if (
+                cValue >= cRangeStart && cValue <= cRangeEnd &&
+                gValueInRange) {
+                filteredParam[key] = value;
+              }
+            }
+            break;
+
+          case 'NuSVR':
+            const matchesNuSVR = key.match(/k=nu([\d.]+)_C([\d.]+)_G(\w+\.?\w*)/);
+            if (matchesNuSVR) {
+              const nuValue = parseFloat(matchesNuSVR[1]);
+              const cValue = parseFloat(matchesNuSVR[2]);
+              let gValue: any = matchesNuSVR[3];
+
+              const gValueIsNumber = !isNaN(parseFloat(gValue));
+
+              if (gValueIsNumber) {
+                gValue = parseFloat(gValue);
+              }
+
+              let gValueInRange;
+              if (gamma === 'range' && gValueIsNumber) {
+                gValueInRange = gValue >= gRangeStart && gValue <= gRangeEnd;
+              } else if (gamma === 'auto' && gValue === 'auto') {
+                gValueInRange = true;
+              }
+              else if (gamma === 'scale' && gValue === 'scale') {
+                gValueInRange = true;
+              }
+
               if (
                 nuValue >= nuRangeStart && nuValue <= nuRangeEnd &&
                 cValue >= cRangeStart && cValue <= cRangeEnd &&
                 gValueInRange) {
-                  filteredParam[key] = value;
+                filteredParam[key] = value;
               }
             }
             break;
 
-            case 'LinearSVR':
+          case 'LinearSVR':
             const matchesLinearSVR = key.match(/k=i([\d.]+)_C(\w+\.?\w*)/);
             if (matchesLinearSVR) {
 
-                const iValue = parseFloat(matchesLinearSVR[1]);
-                const cValue = parseFloat(matchesLinearSVR[2]);
-        
-                if (
-                    cValue >= cRangeStart && cValue <= cRangeEnd &&
-                    iValue >= iRangeStart && iValue <= iRangeEnd) {
-                      filteredParam[key] = value;
-                }
+              const iValue = parseFloat(matchesLinearSVR[1]);
+              const cValue = parseFloat(matchesLinearSVR[2]);
+
+              if (
+                cValue >= cRangeStart && cValue <= cRangeEnd &&
+                iValue >= iRangeStart && iValue <= iRangeEnd) {
+                filteredParam[key] = value;
+              }
             }
             break;
-          }
+        }
       });
 
-        clonedObject[atribute] = JSON.stringify(filteredParam);
-        return clonedObject;
+      clonedObject[atribute] = JSON.stringify(filteredParam);
+      return clonedObject;
     });
   }
-  
-  parsePrecisionData() {
-    let parsedData = this.filteredData.map((item:any) => {
-        let meanErrors = JSON.parse(item.Mean_error);
-      
-        let data = Object.keys(meanErrors).map(key => ({
-            key: key,
-            meanError: meanErrors[key]
-        }
-        ));
-      
-        const cdfValues = this.calculateCDF(data);
 
-        return {
-            ...item,
-            PrecisionData: data,
-            CdfValues: cdfValues
-        };
+  parsePrecisionData() {
+    let parsedData = this.filteredData.map((item: any) => {
+      let meanErrors = JSON.parse(item.Mean_error);
+
+      let data = Object.keys(meanErrors).map(key => ({
+        key: key,
+        meanError: meanErrors[key]
+      }
+      ));
+
+      const cdfValues = this.calculateCDF(data);
+
+      return {
+        ...item,
+        PrecisionData: data,
+        CdfValues: cdfValues
+      };
     });
 
     return parsedData;
@@ -518,7 +538,7 @@ export class GraphicsComponent {
   parseAccuracyData() {
     let parsedData = this.filteredData.map((item: any) => {
       let predictedPoints = JSON.parse(item.Predicted_points);
-  
+
       let predPoints = Object.entries(predictedPoints).map(([key, points]: [string, any]) => ({
         key: key,
         values: points.map(([x, y]: [number, number]) => ({ x, y })),
@@ -528,15 +548,15 @@ export class GraphicsComponent {
         x: parseFloat(point.X),
         y: parseFloat(point.Y),
       })) : [];
-  
-  
+
+
       return {
         ...item,
         PredictedData: predPoints,
         AleatoryData: aleatoryPoints,
       };
     });
-  
+
     return parsedData;
   }
 
@@ -544,103 +564,103 @@ export class GraphicsComponent {
     const cdfData = [];
 
     for (let i = 0; i < data.length; i++) {
-        let meanErrors = data[i].meanError;
-        let cdf:any = [];
-        let totalCount = meanErrors.length;
-        let cumulativeCount = 0;
+      let meanErrors = data[i].meanError;
+      let cdf: any = [];
+      let totalCount = meanErrors.length;
+      let cumulativeCount = 0;
 
-        meanErrors.forEach((errorValue:any, index:any) => {
-            cumulativeCount += 1;
-            const probability = cumulativeCount / totalCount;
-            cdf.push({ x: errorValue, y: probability });
-        });
+      meanErrors.forEach((errorValue: any, index: any) => {
+        cumulativeCount += 1;
+        const probability = cumulativeCount / totalCount;
+        cdf.push({ x: errorValue, y: probability });
+      });
 
-        cdf.unshift({ x: 0, y: 0 });
+      cdf.unshift({ x: 0, y: 0 });
 
-        cdfData.push({
-            key: data[i].key,
-            cdf: cdf
-        });
+      cdfData.push({
+        key: data[i].key,
+        cdf: cdf
+      });
     }
 
     return cdfData;
-}
+  }
 
-  fillPrecisionData(filteredData:any){
+  fillPrecisionData(filteredData: any) {
     let labels = [];
     this.precisionSummary = [];
 
-    for(let i = 0; i < filteredData.length; i++){
+    for (let i = 0; i < filteredData.length; i++) {
       let item = filteredData[i];
       let cdfValues = item.CdfValues;
 
-      for(let j = 0; j < cdfValues.length; j++){
-          let data = cdfValues[j];
-          let meanErrors = data.cdf;
-          
-          let displayLabel = this.getDisplaySeriesLabel(
-            data.key, item.Method_description
-          );
-          let color = this.getSeriesColor(data.key);
-          let summary = this.summarizeErrors(
-            meanErrors.slice(1).map((point:any) => Number(point.x))
-          );
-          this.precisionSummary.push({
-            label: displayLabel,
-            ...summary
-          });
+      for (let j = 0; j < cdfValues.length; j++) {
+        let data = cdfValues[j];
+        let meanErrors = data.cdf;
 
-          let dataset = {
-              data: meanErrors,
-              label: displayLabel,
-              backgroundColor: color.background,
-              borderColor: color.border,
-              pointBackgroundColor: color.border,
-              pointBorderColor: '#fff',
-              pointHoverBackgroundColor: '#fff',
-              pointHoverBorderColor: color.border,
-              fill: false,
-              hidden: this.totalSeries.length >= 6,
-              borderWidth: 3,
-              pointRadius: 2
+        let displayLabel = this.getDisplaySeriesLabel(
+          data.key, item.Method_description
+        );
+        let color = this.getSeriesColor(data.key);
+        let summary = this.summarizeErrors(
+          meanErrors.slice(1).map((point: any) => Number(point.x))
+        );
+        this.precisionSummary.push({
+          label: displayLabel,
+          ...summary
+        });
+
+        let dataset = {
+          data: meanErrors,
+          label: displayLabel,
+          backgroundColor: color.background,
+          borderColor: color.border,
+          pointBackgroundColor: color.border,
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: color.border,
+          fill: false,
+          hidden: this.totalSeries.length >= 6,
+          borderWidth: 3,
+          pointRadius: 2
+        }
+
+        for (let selected of this.selectedSeries) {
+          if (!this.totalSeries.includes(selected) && this.totalSeries.length < 30) {
+            this.totalSeries.push(selected);
+          }
+        }
+
+        if (this.totalSeries.length < 30) {
+          this.totalSeries.push(dataset);
+        }
+        else {
+          this.toastr.warning('No se han cargado todas las series. Ajusta tus selecciones o filtros para ver más datos.', 'Límite de 30 series alcanzado', { timeOut: 5000 });
+          break;
+        }
+
+        const filteredSeries = this.totalSeries.reduce((acc: any, curr: any) => {
+          const existingItem = acc.find((item: any) => item.label === curr.label);
+
+          if (!existingItem) {
+            acc.push(curr);
           }
 
-          for (let selected of this.selectedSeries){
-            if (!this.totalSeries.includes(selected) && this.totalSeries.length < 30) {
-                this.totalSeries.push(selected);
-            }
-          }
+          return acc;
+        }, []);
 
-          if(this.totalSeries.length < 30) {
-            this.totalSeries.push(dataset);
-          }
-          else {
-              this.toastr.warning('No se han cargado todas las series. Ajusta tus selecciones o filtros para ver más datos.', 'Límite de 30 series alcanzado', { timeOut: 5000 });
-              break;
-          }
-
-          const filteredSeries = this.totalSeries.reduce((acc:any, curr:any) => {
-            const existingItem = acc.find((item:any) => item.label === curr.label);
-          
-            if (!existingItem) {
-              acc.push(curr);
-            }
-          
-            return acc;
-          }, []);
-
-          this.totalSeries = filteredSeries
-          labels.push(...meanErrors);
-      }
-  }
-
-  if(this.totalSeries.length == 0){
-    for (let selected of this.selectedSeries){
-      if (!this.totalSeries.includes(selected)) {
-        this.totalSeries.push(selected)
+        this.totalSeries = filteredSeries
+        labels.push(...meanErrors);
       }
     }
-  }
+
+    if (this.totalSeries.length == 0) {
+      for (let selected of this.selectedSeries) {
+        if (!this.totalSeries.includes(selected)) {
+          this.totalSeries.push(selected)
+        }
+      }
+    }
 
     this.lineChartData = {
       datasets: this.totalSeries,
@@ -649,11 +669,11 @@ export class GraphicsComponent {
 
   }
 
-  fillAccuracyData(filteredData:any){
+  fillAccuracyData(filteredData: any) {
     let colors = ["#00BFFF", "#696969", "#228B22", "#FF69B4", "#DAA520", "#D2691E", "#4682B4"];
 
-    let datasets:any[] = [];
-    let labels:any[] = [];
+    let datasets: any[] = [];
+    let labels: any[] = [];
     this.accuracySummary = [];
 
 
@@ -678,54 +698,54 @@ export class GraphicsComponent {
 
     datasets.push(dataset_ale);
 
-    for(let i = 0; i < filteredData.length; i++){
+    for (let i = 0; i < filteredData.length; i++) {
       let item = filteredData[i];
       let predictedValues = item.PredictedData;
 
-      for(let j = 0; j < predictedValues.length; j++){
-          let data = predictedValues[j];
-          let predPoints = data.values;
+      for (let j = 0; j < predictedValues.length; j++) {
+        let data = predictedValues[j];
+        let predPoints = data.values;
 
-          let displayLabel = this.getDisplaySeriesLabel(
-            data.key, item.Method_description
-          );
-          let color = this.getSeriesColor(data.key);
-          let pointColors = predPoints.map(() => color.border);
-          let planarErrors = predPoints
-            .slice(0, aleatoryPoints.length)
-            .map((point:any, index:number) => Math.hypot(
-              point.x - aleatoryPoints[index].x,
-              point.y - aleatoryPoints[index].y
-            ));
-          this.accuracySummary.push({
-            label: displayLabel,
-            ...this.summarizeErrors(planarErrors)
-          });
-          let dataset_pred = {
-              data: predPoints,
-              label: displayLabel,
-              backgroundColor: pointColors,
-              borderColor: pointColors,
-              pointBackgroundColor: pointColors,
-              pointBorderColor: '#fff',
-              pointHoverBackgroundColor: '#fff',
-              pointHoverBorderColor: pointColors,
-              fill: false,
-              hidden: datasets.length > 6,
-              showLine: false,
-              pointRadius: 6
-          }
+        let displayLabel = this.getDisplaySeriesLabel(
+          data.key, item.Method_description
+        );
+        let color = this.getSeriesColor(data.key);
+        let pointColors = predPoints.map(() => color.border);
+        let planarErrors = predPoints
+          .slice(0, aleatoryPoints.length)
+          .map((point: any, index: number) => Math.hypot(
+            point.x - aleatoryPoints[index].x,
+            point.y - aleatoryPoints[index].y
+          ));
+        this.accuracySummary.push({
+          label: displayLabel,
+          ...this.summarizeErrors(planarErrors)
+        });
+        let dataset_pred = {
+          data: predPoints,
+          label: displayLabel,
+          backgroundColor: pointColors,
+          borderColor: pointColors,
+          pointBackgroundColor: pointColors,
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: pointColors,
+          fill: false,
+          hidden: datasets.length > 6,
+          showLine: false,
+          pointRadius: 6
+        }
 
-          if(datasets.length < 30) {
-            datasets.push(dataset_pred);
-            labels.push(...predPoints);
-          }
-          else {
-              this.toastr.warning('No se han cargado todas las series. Ajusta tus selecciones o filtros para ver más datos.', 'Límite de 30 series alcanzado', { timeOut: 5000 });
-              break;
-          }
+        if (datasets.length < 30) {
+          datasets.push(dataset_pred);
+          labels.push(...predPoints);
+        }
+        else {
+          this.toastr.warning('No se han cargado todas las series. Ajusta tus selecciones o filtros para ver más datos.', 'Límite de 30 series alcanzado', { timeOut: 5000 });
+          break;
+        }
       }
-  }
+    }
 
     this.pointsChartData = {
       datasets: datasets,
@@ -733,64 +753,64 @@ export class GraphicsComponent {
     };
 
   }
-  
+
   public lineChartData: ChartConfiguration['data'] = {
     datasets: [],
     labels: []
   };
 
   public lineChartOptions: ChartConfiguration['options'] = {
-    maintainAspectRatio:false,
+    maintainAspectRatio: false,
     scales: {
       x: {
-          title: {
-              display: true,
-              text: 'Error (m)'
-          },
-          beginAtZero: true,
-          type:"linear",
-          grace: '5%',
+        title: {
+          display: true,
+          text: 'Error (m)'
+        },
+        beginAtZero: true,
+        type: "linear",
+        grace: '5%',
       },
       y: {
-          title: {
-              display: true,
-              text: 'Distribución acumulada (CDF)'
-          },
-          type:"linear",
-          min: 0,
-          max: 1
+        title: {
+          display: true,
+          text: 'Distribución acumulada (CDF)'
+        },
+        type: "linear",
+        min: 0,
+        max: 1
       },
     },
-    plugins:{
-      legend:{
-        display:true,
-        position:"bottom",
-        labels:{
-          boxWidth:10,
-          boxHeight:10,
+    plugins: {
+      legend: {
+        display: true,
+        position: "bottom",
+        labels: {
+          boxWidth: 10,
+          boxHeight: 10,
         },
         onClick: (event, legendItem, legend) => {
 
-            const index = legendItem.datasetIndex;
+          const index = legendItem.datasetIndex;
 
-            const chart = legend.chart;
-            const dataset = chart.data.datasets[index||0];
+          const chart = legend.chart;
+          const dataset = chart.data.datasets[index || 0];
 
-            if (!this.selectedSeries.includes(dataset)) {
-              dataset.hidden = false;
-              this.selectedSeries.push(dataset);
+          if (!this.selectedSeries.includes(dataset)) {
+            dataset.hidden = false;
+            this.selectedSeries.push(dataset);
+          }
+          else {
+            let foundIndex = this.selectedSeries.findIndex((data: any) => data === dataset);
+            if (foundIndex !== -1) {
+              this.selectedSeries.splice(foundIndex, 1);
             }
-            else {
-              let foundIndex = this.selectedSeries.findIndex((data:any) => data === dataset);
-              if (foundIndex !== -1) {
-                  this.selectedSeries.splice(foundIndex, 1);
-              }
-              dataset.hidden = true;
-            }
+            dataset.hidden = true;
+          }
 
-            chart.update(this.selectedSeries);
+          chart.update(this.selectedSeries);
         }
-        
+
       }
     },
   };
@@ -804,34 +824,34 @@ export class GraphicsComponent {
   };
 
   public pointsChartOptions: ChartConfiguration['options'] = {
-    maintainAspectRatio:false,
+    maintainAspectRatio: false,
     scales: {
       x: {
-          title: {
-              display: true,
-              text: 'x (m)'
-          },
-          beginAtZero: true,
-          type:"linear",
-          grace: '5%',
+        title: {
+          display: true,
+          text: 'x (m)'
+        },
+        beginAtZero: true,
+        type: "linear",
+        grace: '5%',
       },
       y: {
-          title: {
-              display: true,
-              text: 'y (m)'
-          },
-          type:"linear",
-          beginAtZero: true,
-          grace: '5%',
+        title: {
+          display: true,
+          text: 'y (m)'
+        },
+        type: "linear",
+        beginAtZero: true,
+        grace: '5%',
       },
     },
-    plugins:{
-      legend:{
-        display:true,
-        position:"bottom",
-        labels:{
-          boxWidth:10,
-          boxHeight:10,
+    plugins: {
+      legend: {
+        display: true,
+        position: "bottom",
+        labels: {
+          boxWidth: 10,
+          boxHeight: 10,
         }
       },
     }
@@ -839,7 +859,7 @@ export class GraphicsComponent {
 
   public pointsChartType: ChartType = 'line';
 
-  getDisplaySeriesLabel(label:string, methodDescription?:string) {
+  getDisplaySeriesLabel(label: string, methodDescription?: string) {
     try {
       const description = JSON.parse(methodDescription || '{}');
       const beaconMacs = description.beaconMacs;
@@ -850,7 +870,7 @@ export class GraphicsComponent {
 
       const beaconCount = description.beaconCount ?? beaconMacs.length;
       const serializedMacs = '[' + beaconMacs
-        .map((mac:string) => "'" + mac + "'")
+        .map((mac: string) => "'" + mac + "'")
         .join(', ') + ']';
       const macToken = '[' + serializedMacs + ']';
       const inventoryToken = '[' + beaconCount + ']' + macToken;
@@ -863,7 +883,7 @@ export class GraphicsComponent {
     }
   }
 
-  getSeriesColor(label:string) {
+  getSeriesColor(label: string) {
     let hash = 0;
     for (let index = 0; index < label.length; index++) {
       hash = label.charCodeAt(index) + ((hash << 5) - hash);
@@ -875,15 +895,15 @@ export class GraphicsComponent {
     };
   }
 
-  summarizeErrors(errors:number[]) {
+  summarizeErrors(errors: number[]) {
     const sorted = errors
       .filter(value => Number.isFinite(value))
       .sort((first, second) => first - second);
-    if(sorted.length === 0) {
+    if (sorted.length === 0) {
       return { count: 0, mean: 0, median: 0, rmse: 0, p90: 0, maximum: 0 };
     }
 
-    const percentile = (ratio:number) => {
+    const percentile = (ratio: number) => {
       const index = Math.min(
         sorted.length - 1,
         Math.max(0, Math.ceil(sorted.length * ratio) - 1)
@@ -903,12 +923,12 @@ export class GraphicsComponent {
     };
   }
 
-  insertPrecisionData(){
+  insertPrecisionData() {
     this.totalSeries = [];
     this.onFilterSelected('precision');
   }
 
-  insertAccuracyData(){
+  insertAccuracyData() {
     this.onFilterSelected('accuracy');
   }
 }

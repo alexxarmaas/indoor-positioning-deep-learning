@@ -1,3 +1,4 @@
+from torch._prims_common import validate_exclusive_idx
 import json
 import numpy as np
 from datetime import datetime
@@ -30,6 +31,7 @@ from services.MethodsService import (
 from controllers.TaskHistoryCrud import createTaskHistory, updateTaskHistory
 
 from services.TFGDataService import load_tfg_campaign_dataset
+from services.TFGFeaturesService import load_beacon_mapping
 
 ORIENTATION_PROCESSING_VERSION = 3
 
@@ -100,10 +102,116 @@ def getTFGCampaignMatrix(campaignId):
 
     return matrix, point_keys
 
+def processTFGMethod(data):
+    
+    campaignId = data['campaign']
+    campaignName = data['campaignName']
+    method = data['method']
+
+    aleCampaignId = getRelatedCampaignIdByCampaignId(campaignId)
+
+    data_train, _ = getTFGCampaignMatrix(campaignId)
+    data_test, test_points = getTFGCampaignMatrix(aleCampaignId)
+
+    if len(data_train) < 10:
+        raise ValueError("No hay suficientes capturas PR para entrenar")
+
+    if len(set(map(tuple, data_train[:, -3:]))) < 2:
+        raise ValueError("Se necesitan al menos dos posiciones PR")
+
+    unique_points = list(dict.fromkeys(test_points))
+    point_index = {point: index for index, point in enumerate(unique_points)}
+
+    evaluation_plan = [(point_index[point], None) for point in test_points]
+    taskId = json.dumps({
+        "method": method,
+        "protocol": "BLE", 
+        "channel": "all-recorded",
+        "rssiSample": "all",
+        "fingerprint": "median-rssi-presence-v1",
+        "beaconMapping": load_beacon_mapping(),
+        "referenceCampaign": campaignId, 
+        "evaluationCampaign": aleCampaignId,
+        "trainingCaptures": len(data_train),
+        "evaluationCaptures": len(data_test),
+        "orientationFusion": "coordinate-median",
+        "version": 1
+    }, sort_keys=True)
+
+    if checkExistingMethodPrediction(campaignId, taskId):
+        return {
+            "completedTasks": 0,
+            "skippedTasks": 1, 
+            "failedTasks": 0
+        }
+
+    createTaskHistory(
+        campaignId, 
+        campaignName, 
+        "Entrenando MLP TFG...",
+        taskId, 
+        datetime.now()
+    )
+
+    try: 
+        predicted_points = applyMethod(
+            data_train=data_train,
+            data_test=data_test,
+            method=method,
+            metrics=None,
+            algorithms=None, 
+            ks_range=None,
+            kernel=None,
+            cs=None, 
+            gammas=None, 
+            nus=None, 
+            Is=None, 
+            description=taskId
+        )
+
+        validateFiniteResults(predicted_points, "Predicciones TFG")
+        fused_matrix, fused_predictions = (
+            fusePredictionsByPointMedian(
+                data_test,
+                predicted_points, 
+                evaluation_plan
+            )
+        )
+
+        validateFiniteResults(fused_predictions, "Predicciones fusionadas")
+
+        errors = calculateError(fused_matrix, fused_predictions)
+        validateFiniteResults(errors, "Errores TFG")
+
+        createMethodPrediction(campaignId, taskId, json.dumps(fused_predictions, allow_nan=False), json.dumps(errors, allow_nan=False))
+
+        updateTaskHistory(campaignId, taskId, "Completado", datetime.now())
+
+        return {
+            "completedTasks": 1, 
+            "skippedTasks": 0,
+            "failedTasks": 0
+        }
+
+    except Exception as error: 
+        updateTaskHistory(campaignId, taskId, "Error")
+        print("Error durante procesamiento TFG: ", str(error))
+
+        return {
+            "completedTasks": 0,
+            "skippedTasks": 0,
+            "failedTasks": 1
+        }
+
+    
 def dataProcessing(data):
     campaignId = data['campaign']
     campaignName = data['campaignName']
     method = data['method']
+
+    if method in ("MLP_TFG_ROBUST", "MLP_TFG_MASK"):
+        return processTFGMethod(data)
+
     protocols = data['protocols']
     channels = data['channels']
     rssiSamples = data['sample']
